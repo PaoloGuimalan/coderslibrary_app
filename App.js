@@ -5,7 +5,7 @@
  * @format
  * @flow strict-local
  */
-
+import './src/libraries/ignoreWarning'
 import React, { useState, useEffect } from 'react';
 import type {Node} from 'react';
 import {
@@ -30,6 +30,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Home from './src/components/Home';
 import Splash from './src/components/Splash';
+import ViewBook from './src/tabs/ViewBook';
 
 const MainStack = createNativeStackNavigator();
 
@@ -78,6 +79,7 @@ const App: () => Node = () => {
       <NavigationContainer>
         <MainStack.Navigator>
           <MainStack.Screen name='Home' component={splashloader? Splash : Home} options={{headerShown: false}} />
+          <MainStack.Screen name='ViewBook' component={ViewBook} options={{headerShown: false}} />
           {/* <MainStack.Screen name='Home' component={Home} options={{headerShown: false}} /> */}
         </MainStack.Navigator>
       </NavigationContainer>

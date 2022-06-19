@@ -1,16 +1,16 @@
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Axios from 'axios';
 
-const BooksTab = () => {
+const BooksTab = ({navigation}) => {
 
   const [bookslist, setbookslist] = useState([]);
 
   useEffect(() => {
-    Axios.get("https://firebasestorage.googleapis.com/v0/b/coderslibrary-d2244.appspot.com/o/json%2Fdata_books.json?alt=media&token=968cf5f6-9dc3-4299-be06-882243511ce9")
+    Axios.get("https://coderslibraryserver.herokuapp.com/books")
     .then((response) => {
         // console.log(response.data.books);
-        setbookslist(response.data.books)
+        setbookslist(response.data)
     })
   }, [])
 
@@ -21,10 +21,12 @@ const BooksTab = () => {
         <ScrollView style={styles.scrollViewStyling} contentContainerStyle={styles.scrollViewContainer}>
            {bookslist.map((items, i) => {
                 return(
-                    <View key={i} style={styles.viewBookSizingList}>
-                        <Image source={{uri: items.link_img}} style={styles.imgSizing} />
-                        {/* <Text>{items.link_img}</Text> */}
-                    </View>
+                    <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl })}}>
+                      <View style={styles.viewBookSizingList}>
+                          <Image source={{uri: items.link_img}} style={styles.imgSizing} />
+                          {/* <Text>{items.link_img}</Text> */}
+                      </View>
+                    </TouchableOpacity>
                 )
            })}
         </ScrollView>
