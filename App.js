@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type {Node} from 'react';
 import {
   SafeAreaView,
@@ -66,11 +66,19 @@ const App: () => Node = () => {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
+  const [splashloader, setsplashloader] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setsplashloader(false)
+    }, 4000)
+  })
+
   return (
       <NavigationContainer>
         <MainStack.Navigator>
-          <MainStack.Screen name='Splash' component={Splash} options={{headerShown: false}} />
-          <MainStack.Screen name='Home' component={Home} options={{headerShown: false}} />
+          <MainStack.Screen name='Home' component={splashloader? Splash : Home} options={{headerShown: false}} />
+          {/* <MainStack.Screen name='Home' component={Home} options={{headerShown: false}} /> */}
         </MainStack.Navigator>
       </NavigationContainer>
   );
