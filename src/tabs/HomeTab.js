@@ -56,7 +56,24 @@ const HomeTab = ({navigation}) => {
           <ScrollView horizontal style={styles.scrollWhatsN}>
             {/* <Text>{date.split(" ")[3]}</Text> */}
             {loader? (
-              <Text>Loading...</Text>
+              <View style={styles.viewLoader}>
+                <View style={styles.homeupdatesView}>
+                  <View style={styles.imageWNSizingLoader} />
+                  <View style={styles.viewTextLoader} />
+                </View>
+                <View style={styles.homeupdatesView}>
+                  <View style={styles.imageWNSizingLoader} />
+                  <View style={styles.viewTextLoader} />
+                </View>
+                <View style={styles.homeupdatesView}>
+                  <View style={styles.imageWNSizingLoader} />
+                  <View style={styles.viewTextLoader} />
+                </View>
+                <View style={styles.homeupdatesView}>
+                  <View style={styles.imageWNSizingLoader} />
+                  <View style={styles.viewTextLoader} />
+                </View>
+              </View>
             ) : (
               homeupdates.map((items, i) => {
                 return(
@@ -76,7 +93,24 @@ const HomeTab = ({navigation}) => {
           <ScrollView horizontal style={styles.scrollWhatsN}>
             {/* <Text>{date.split(" ")[3]}</Text> */}
             {loadercat? (
-              <Text>Loading...</Text>
+              <View style={styles.viewLoader}>
+                <View style={styles.homeupdatesView}>
+                  <View style={styles.imageWNSizingLoader} />
+                  <View style={styles.viewTextLoader} />
+                </View>
+                <View style={styles.homeupdatesView}>
+                  <View style={styles.imageWNSizingLoader} />
+                  <View style={styles.viewTextLoader} />
+                </View>
+                <View style={styles.homeupdatesView}>
+                  <View style={styles.imageWNSizingLoader} />
+                  <View style={styles.viewTextLoader} />
+                </View>
+                <View style={styles.homeupdatesView}>
+                  <View style={styles.imageWNSizingLoader} />
+                  <View style={styles.viewTextLoader} />
+                </View>
+              </View>
             ) : (
               categorieslist.map((items, i) => {
                 return(
@@ -227,6 +261,23 @@ const styles = StyleSheet.create({
       height: 200,
       borderWidth: 0,
       borderColor: "grey"
+    },
+    viewLoader:{
+      flex: 1,
+      flexDirection: "row"
+    },
+    imageWNSizingLoader:{
+      width: 150,
+      height: 200,
+      borderWidth: 1,
+      borderColor: "#ebebeb",
+      backgroundColor: "#ebebeb"
+    },
+    viewTextLoader:{
+      width: "85%",
+      height: 20,
+      backgroundColor: "#ebebeb",
+      marginTop: 10
     }
 })
 
