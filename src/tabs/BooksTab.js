@@ -1,16 +1,24 @@
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux';
+import { BOOKS_LIST } from '../redux/types/types';
 
 const BooksTab = ({navigation}) => {
 
-  const [bookslist, setbookslist] = useState([]);
+  const [loader, setloader] = useState(true);
+
+  const bookslist = useSelector(state => state.bookslist);
+
+  const dispatch = useDispatch()
 
   useEffect(() => {
     Axios.get("https://coderslibraryserver.herokuapp.com/books")
     .then((response) => {
         // console.log(response.data.books);
-        setbookslist(response.data)
+        // setbookslist(response.data)
+        dispatch({type: BOOKS_LIST, bookslist: response.data})
+        setloader(false)
     })
   }, [])
 
@@ -19,16 +27,20 @@ const BooksTab = ({navigation}) => {
       <Text style={styles.homeLabel}>Books</Text>
       <View style={styles.viewBooksContainer}>
         <ScrollView style={styles.scrollViewStyling} contentContainerStyle={styles.scrollViewContainer}>
-           {bookslist.map((items, i) => {
-                return(
-                    <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl })}}>
-                      <View style={styles.viewBookSizingList}>
-                          <Image source={{uri: items.link_img}} style={styles.imgSizing} />
-                          {/* <Text>{items.link_img}</Text> */}
-                      </View>
-                    </TouchableOpacity>
-                )
-           })}
+           {loader? (
+            <Text>Loading...</Text>
+           ) : (
+            bookslist.map((items, i) => {
+              return(
+                  <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl })}}>
+                    <View style={styles.viewBookSizingList}>
+                        <Image source={{uri: items.link_img}} style={styles.imgSizing} />
+                        {/* <Text>{items.link_img}</Text> */}
+                    </View>
+                  </TouchableOpacity>
+              )
+            })
+           )}
         </ScrollView>
       </View>
     </View>

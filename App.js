@@ -31,6 +31,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './src/components/Home';
 import Splash from './src/components/Splash';
 import ViewBook from './src/tabs/ViewBook';
+import ViewCategory from './src/tabs/ViewCategory';
+
+import { Provider } from 'react-redux';
+import store from './src/redux/store/store';
 
 const MainStack = createNativeStackNavigator();
 
@@ -69,20 +73,25 @@ const App: () => Node = () => {
 
   const [splashloader, setsplashloader] = useState(true);
 
+  // const dispatch = useDispatch()
+
   useEffect(() => {
     setTimeout(() => {
       setsplashloader(false)
     }, 4000)
-  })
+  }, [])
 
   return (
-      <NavigationContainer>
-        <MainStack.Navigator>
-          <MainStack.Screen name='Home' component={splashloader? Splash : Home} options={{headerShown: false}} />
-          <MainStack.Screen name='ViewBook' component={ViewBook} options={{headerShown: false}} />
-          {/* <MainStack.Screen name='Home' component={Home} options={{headerShown: false}} /> */}
-        </MainStack.Navigator>
-      </NavigationContainer>
+      <Provider store={store}>
+        <NavigationContainer>
+          <MainStack.Navigator>
+            <MainStack.Screen name='Home' component={splashloader? Splash : Home} options={{headerShown: false}} />
+            <MainStack.Screen name='ViewBook' component={ViewBook} options={{headerShown: false}} />
+            <MainStack.Screen name='ViewCategory' component={ViewCategory} options={{headerShown: false}} />
+            {/* <MainStack.Screen name='Home' component={Home} options={{headerShown: false}} /> */}
+          </MainStack.Navigator>
+        </NavigationContainer>
+      </Provider>
   );
 };
 

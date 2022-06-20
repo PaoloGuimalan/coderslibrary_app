@@ -1,30 +1,35 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native'
-import React from 'react'
+import { View, Text, StyleSheet, ScrollView, ImageBackground } from 'react-native'
+import React, { useEffect } from 'react'
 import Icon from 'react-native-vector-icons/Octicons'
 import IconFeather from 'react-native-vector-icons/Feather'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { NavigationContainer } from '@react-navigation/native'
 import HomeTab from '../tabs/HomeTab'
 import BooksTab from '../tabs/BooksTab'
+import { useDispatch } from 'react-redux'
+import Axios from 'axios'
+import { BOOKS_LIST } from '../redux/types/types'
+import ImgBackground from '../resources/imgs/background_rn.jpg'
 
 const Tab = createNativeStackNavigator()
 
 export default function Home({navigation}) {
+
   return (
     <View style={styles.mainView}>
-      <View style={styles.scrollViewStyling}>
-          <Tab.Navigator>
-            <Tab.Screen name="HomeTab" component={HomeTab} options={{headerShown: false}} />
-            <Tab.Screen name="BooksTab" component={BooksTab} options={{headerShown: false}} />
-          </Tab.Navigator>
-      </View>
-      <View style={styles.viewNav}>
-        <Icon name='home' size={25} color="grey" style={styles.iconsStyling} onPress={() => {navigation.navigate("HomeTab")}} />
-        <Icon name='search' size={25} color="grey" style={styles.iconsStyling} />
-        <Icon name='book' size={25} color="grey" style={styles.iconsStyling} onPress={() => {navigation.navigate("BooksTab")}} />
-        <Icon name='bookmark' size={25} color="grey" style={styles.iconsStyling} />
-        <Icon name='gear' size={25} color="grey" style={styles.iconsStyling} />
-      </View>
+        <View style={styles.scrollViewStyling}>
+            <Tab.Navigator>
+              <Tab.Screen name="HomeTab" component={HomeTab} options={{headerShown: false}} />
+              <Tab.Screen name="BooksTab" component={BooksTab} options={{headerShown: false}} />
+            </Tab.Navigator>
+        </View>
+        <View style={styles.viewNav}>
+          <Icon name='home' size={25} color="grey" style={styles.iconsStyling} onPress={() => {navigation.navigate("HomeTab")}} />
+          <Icon name='search' size={25} color="grey" style={styles.iconsStyling} />
+          <Icon name='book' size={25} color="grey" style={styles.iconsStyling} onPress={() => {navigation.navigate("BooksTab")}} />
+          <Icon name='bookmark' size={25} color="grey" style={styles.iconsStyling} />
+          <Icon name='gear' size={25} color="grey" style={styles.iconsStyling} />
+        </View>
     </View>
   )
 }

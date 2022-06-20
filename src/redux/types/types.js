@@ -1,0 +1,3 @@
+export const BOOKS_LIST = 'BOOKS_LIST';
+export const HOME_UPDATES = 'HOME_UPDATES';
+export const CATEGORIES_LIST = 'CATEGORIES_LIST';
