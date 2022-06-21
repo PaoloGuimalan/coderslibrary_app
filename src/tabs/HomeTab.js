@@ -80,7 +80,7 @@ const HomeTab = ({navigation}) => {
                   <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl })}}>
                     <View style={styles.homeupdatesView}>
                       <Image source={{uri: items.link_img}} style={styles.imageWNSizing} />
-                      <Text style={styles.textWNLabels}>{items.name}</Text>
+                      <Text numberOfLines={2} style={styles.textWNLabels}>{items.name}</Text>
                     </View>
                   </TouchableOpacity>
                 )
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     scrollViewContainer:{
       flexGrow: 1,
       alignItems: 'center',
-      paddingBottom: 100
+      paddingBottom: 150
     },
     viewNav:{
       height: 55,
@@ -253,8 +253,9 @@ const styles = StyleSheet.create({
       borderColor: "grey"
     },
     textWNLabels:{
-      textAlign: "justify",
-      marginTop: 10
+      textAlign: "center",
+      marginTop: 10,
+      width: 150
     },
     imageCatSizing:{
       width: 150,

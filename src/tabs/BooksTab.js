@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       flexDirection: "row",
       flexGrow: 1,
-      paddingBottom: 80,
+      paddingBottom: 150,
       paddingTop: 80,
       flexWrap: "wrap",
       justifyContent: "center"
