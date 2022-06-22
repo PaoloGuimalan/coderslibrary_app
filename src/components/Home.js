@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, ImageBackground, Image } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/Octicons'
 import IconFeather from 'react-native-vector-icons/Feather'
@@ -58,11 +58,31 @@ export default function Home({navigation}) {
             </Tab.Navigator>
         </View>
         <View style={styles.viewNav}>
-          <Icon name='home' size={25} color="grey" style={styles.iconsStyling} onPress={() => {navigation.navigate("HomeTab")}} />
-          <Icon name='search' size={25} color="grey" style={styles.iconsStyling} onPress={() => {navigation.navigate("SearchTab")}} />
-          <Icon name='book' size={25} color="grey" style={styles.iconsStyling} onPress={() => {navigation.navigate("BooksTab")}} />
-          <Icon name='bookmark' size={25} color="grey" style={styles.iconsStyling} />
-          <Icon name='gear' size={25} color="grey" style={styles.iconsStyling} />
+          <TouchableOpacity onPress={() => {navigation.navigate("HomeTab")}}>
+            <View style={styles.viewButtonMain}>
+              <Icon name='home' size={25} color="grey" style={styles.iconsStyling} />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {navigation.navigate("SearchTab")}}>
+            <View style={styles.viewButtonMain}>
+              <Icon name='search' size={25} color="grey" style={styles.iconsStyling} />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {navigation.navigate("BooksTab")}}>
+            <View style={styles.viewButtonMain}>
+             <Icon name='book' size={25} color="grey" style={styles.iconsStyling} />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <View style={styles.viewButtonMain}>
+              <Icon name='bookmark' size={25} color="grey" style={styles.iconsStyling} />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <View style={styles.viewButtonMain}>
+              <Icon name='gear' size={25} color="grey" style={styles.iconsStyling} />
+            </View>
+          </TouchableOpacity>
         </View>
     </View>
   )
@@ -181,8 +201,10 @@ const styles = StyleSheet.create({
       borderWidth: 1.5
     },
     iconsStyling:{
+      flex: 0,
       marginLeft: 10,
-      marginRight: 10
+      marginRight: 10,
+      backgroundColor: "transparent"
     },
     homeLabel:{
       fontSize: 20,
@@ -190,5 +212,13 @@ const styles = StyleSheet.create({
       marginTop: 15,
       color: "black",
       fontWeight: "700"
+    },
+    viewButtonMain:{
+      backgroundColor: "transparent",
+      height: "100%",
+      flex: 1,
+      justifyContent: "center",
+      marginLeft: 1,
+      marginRight: 1
     }
 })

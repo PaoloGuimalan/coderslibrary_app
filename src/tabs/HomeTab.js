@@ -51,7 +51,7 @@ const HomeTab = ({navigation}) => {
             </View>
             <View style={styles.viewParagraph}>
               <Text style={styles.mainWelcomeText}>Welcome to Coder's Library</Text>
-              <Text style={styles.paragraphWelcome}>In here you can browse, read and save pdf books of your desire. Coder's Library is made mainly for you as a reader to have a better experienc in using Digital Books. Have fun reading!</Text>
+              <Text style={styles.paragraphWelcome}>In here you can browse, read and save pdf books of your desire. Coder's Library is made mainly for you as a reader to have a better experience in using Digital Books. Have fun reading!</Text>
             </View>
           </View>
         </View>

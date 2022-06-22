@@ -1,10 +1,12 @@
 import { createStore, combineReducers } from "redux";
-import { setbookslist, setcategorieslist, sethomeupdates } from "../actions/actions";
+import { setbookslist, setcategorieslist, sethomeupdates, setsearchbooks, setsearchcategories } from "../actions/actions";
 
 const combiner = combineReducers({
     bookslist: setbookslist,
     homeupdates: sethomeupdates,
-    categorieslist: setcategorieslist
+    categorieslist: setcategorieslist,
+    searchbookslist: setsearchbooks,
+    searchcategorieslist: setsearchcategories
 })
 
 const store = createStore(combiner);

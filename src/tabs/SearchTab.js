@@ -1,13 +1,20 @@
-import { View, Text, StyleSheet, TextInput, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native'
 import React, { useState, useTransition } from 'react'
 import IconIon from 'react-native-vector-icons/Ionicons'
 import IconMCI from 'react-native-vector-icons/MaterialCommunityIcons'
+import Axios from 'axios'
+import { useSelector, useDispatch } from 'react-redux'
+import { SEARCH_BOOKS, SEARCH_CATEGORIES } from '../redux/types/types'
 
-const SearchTab = () => {
+const SearchTab = ({navigation}) => {
 
   const [searchValue, setsearchValue] = useState("");
   const [searchinitialized, setsearchinitialized] = useState(false);
   // const [isPending, startTransition] = useTransition()
+
+  const searchbookslist = useSelector(state => state.searchbookslist);
+  const searchcategorieslist = useSelector(state => state.searchcategorieslist)
+  const dispatch = useDispatch()
 
   const searchEnabler = (e) => {
     // startTransition(() => {
@@ -16,8 +23,20 @@ const SearchTab = () => {
     setsearchValue(e)
   }
 
-  const submitClicked = () => {
-    alert(searchValue)
+  const submitClicked = async () => {
+    // alert(searchValue)
+    const searchBooksFetch = Axios.post('https://coderslibraryserver.herokuapp.com/searchBooks', { searchBooksValue: searchValue })
+    const searchCategoryFetch = Axios.post('https://coderslibraryserver.herokuapp.com/searchCategory', { searchCategoryValue: searchValue })
+
+    await Axios.all([searchBooksFetch, searchCategoryFetch]).then(
+      Axios.spread((response1, response2) => {
+        // console.log(response1.data);
+        // console.log(response2.data)
+        dispatch({type: SEARCH_BOOKS, searchbookslist: response1.data})
+        dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: response2.data})
+        setsearchinitialized(true);
+      })
+    )
   }
 
   return (
@@ -30,8 +49,39 @@ const SearchTab = () => {
         </View>
       </View>
       {searchinitialized? (
-        <View>
-          <Text>Hello World</Text>
+        <View style={styles.viewResults}>
+          <ScrollView style={styles.scrollSearchResult} contentContainerStyle={styles.containerScrollResults}>
+            <View style={styles.viewSearchedCategoryList}>
+              <Text style={styles.textLabelResults}>Categories</Text>
+              <ScrollView contentContainerStyle={styles.scrollViewSectionsBooksResults} horizontal>
+                {searchcategorieslist.map((items, i) => {
+                  return(
+                    <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewCategory", { catname: items.category })}}>
+                      <View style={styles.viewIndividualResult}>
+                        <Image source={{uri: items.img_prev}} style={styles.individualImage} />
+                        <Text numberOfLines={2} style={styles.textindividualLabels}>{items.category}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  )
+                })}
+              </ScrollView>
+            </View>
+            <View style={styles.viewSearchedCategoryList}>
+              <Text style={styles.textLabelResults}>Books</Text>
+              <View style={styles.viewSectionsBooksResults}>
+                {searchbookslist.map((items, i) => {
+                  return(
+                    <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl })}}>
+                      <View style={styles.viewIndividualResult}>
+                        <Image source={{uri: items.link_img}} style={styles.individualImage} />
+                        <Text numberOfLines={2} style={styles.textindividualLabels}>{items.name}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            </View>
+          </ScrollView>
         </View>
       ) : (
         <View style={styles.viewNoSearch}>
@@ -113,6 +163,56 @@ const styles = StyleSheet.create({
   },
   textLabelNoSearch:{
     fontSize: 13
+  },
+  viewSearchedCategoryList:{
+    backgroundColor: "white",
+    width: "100%",
+    marginBottom: 20
+  },
+  scrollSearchResult:{
+    backgroundColor: "white"
+  },
+  containerScrollResults:{
+    flexGrow: 1,
+    flexDirection: "column",
+    paddingBottom: 250
+  },
+  viewResults:{
+    width: "95%"
+  },
+  viewSectionsBooksResults:{
+    flex: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center"
+  },
+  textLabelResults:{
+    marginBottom: 15,
+    fontSize: 20,
+    marginLeft: 15
+  },
+  viewIndividualResult:{
+    borderWidth: 0,
+    width: 150,
+    height: 240,
+    margin: 5,
+    flex: 0,
+    alignItems: "center"
+  },
+  individualImage:{
+    width: 150,
+    height: 200
+  },
+  textindividualLabels:{
+    textAlign: "center"
+  },
+  scrollViewSectionsBooksResults:{
+    backgroundColor: "white"
+    // flex: 1,
+    // flexDirection: "row",
+    // flexWrap: "wrap",
+    // justifyContent: "center",
+    // height: 250
   }
 });
 
