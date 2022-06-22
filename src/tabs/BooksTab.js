@@ -19,6 +19,8 @@ const BooksTab = ({navigation}) => {
         // setbookslist(response.data)
         dispatch({type: BOOKS_LIST, bookslist: response.data})
         setloader(false)
+    }).catch((err) => {
+      dispatch({type: BOOKS_LIST, bookslist: []})
     })
   }, [])
 

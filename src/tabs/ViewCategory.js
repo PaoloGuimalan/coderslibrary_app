@@ -13,6 +13,8 @@ const ViewCategory = ({route, navigation}) => {
       // console.log(response.data)
       setbookslistcategory(response.data);
       setloader(false)
+    }).catch((err) => {
+      setbookslistcategory([]);
     })
   }, [route.params.catname])
 

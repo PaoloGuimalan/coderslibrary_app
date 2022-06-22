@@ -23,6 +23,8 @@ const HomeTab = ({navigation}) => {
         // setbookslist(response.data)
         dispatch({type: HOME_UPDATES, homeupdates: response.data})
         setloader(false)
+    }).catch((err) => {
+      dispatch({type: HOME_UPDATES, homeupdates: []})
     })
   }, [])
 
@@ -33,6 +35,8 @@ const HomeTab = ({navigation}) => {
         // setbookslist(response.data)
         dispatch({type: CATEGORIES_LIST, categorieslist: response.data})
         setloadercat(false)
+    }).catch((err) => {
+      dispatch({type: CATEGORIES_LIST, categorieslist: []})
     })
   }, [])
 
