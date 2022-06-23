@@ -22,7 +22,7 @@ const Login = ({navigation}) => {
             <View style={styles.noteIndicatorFlex}>
                 <Text>Do not have an account? </Text>
                 <TouchableOpacity onPress={() => { navigation.navigate("Register") }}>
-                    <Text style={styles.registerIndicator}>register here.</Text>
+                    <Text style={styles.registerIndicator}>Register here.</Text>
                 </TouchableOpacity>
             </View>
         </View>
