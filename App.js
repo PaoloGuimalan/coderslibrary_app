@@ -32,6 +32,8 @@ import Home from './src/components/Home';
 import Splash from './src/components/Splash';
 import ViewBook from './src/tabs/ViewBook';
 import ViewCategory from './src/tabs/ViewCategory';
+import Login from './src/components/Login';
+import Register from './src/components/Register';
 
 import { Provider } from 'react-redux';
 import store from './src/redux/store/store';
@@ -88,6 +90,8 @@ const App: () => Node = () => {
             <MainStack.Screen name='Home' component={splashloader? Splash : Home} options={{headerShown: false}} />
             <MainStack.Screen name='ViewBook' component={ViewBook} options={{headerShown: false}} />
             <MainStack.Screen name='ViewCategory' component={ViewCategory} options={{headerShown: false}} />
+            <MainStack.Screen name='Login' component={Login} options={{headerShown: false}} />
+            <MainStack.Screen name='Register' component={Register} options={{headerShown: false}} />
             {/* <MainStack.Screen name='Home' component={Home} options={{headerShown: false}} /> */}
           </MainStack.Navigator>
         </NavigationContainer>

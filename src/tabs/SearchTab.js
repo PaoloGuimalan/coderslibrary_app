@@ -51,36 +51,44 @@ const SearchTab = ({navigation}) => {
       {searchinitialized? (
         <View style={styles.viewResults}>
           <ScrollView style={styles.scrollSearchResult} contentContainerStyle={styles.containerScrollResults}>
-            <View style={styles.viewSearchedCategoryList}>
-              <Text style={styles.textLabelResults}>Categories</Text>
-              <ScrollView contentContainerStyle={styles.scrollViewSectionsBooksResults} horizontal>
-                {searchcategorieslist.map((items, i) => {
-                  return(
-                    <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewCategory", { catname: items.category })}}>
-                      <View style={styles.viewIndividualResult}>
-                        <Image source={{uri: items.img_prev}} style={styles.individualImage} />
-                        <Text numberOfLines={2} style={styles.textindividualLabels}>{items.category}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  )
-                })}
-              </ScrollView>
-            </View>
-            <View style={styles.viewSearchedCategoryList}>
-              <Text style={styles.textLabelResults}>Books</Text>
-              <View style={styles.viewSectionsBooksResults}>
-                {searchbookslist.map((items, i) => {
-                  return(
-                    <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl })}}>
-                      <View style={styles.viewIndividualResult}>
-                        <Image source={{uri: items.link_img}} style={styles.individualImage} />
-                        <Text numberOfLines={2} style={styles.textindividualLabels}>{items.name}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  )
-                })}
+            {searchcategorieslist.length != 0? (
+              <View style={styles.viewSearchedCategoryList}>
+                <Text style={styles.textLabelResults}>Categories</Text>
+                <ScrollView contentContainerStyle={styles.scrollViewSectionsBooksResults} horizontal>
+                  {searchcategorieslist.map((items, i) => {
+                    return(
+                      <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewCategory", { catname: items.category })}}>
+                        <View style={styles.viewIndividualResult}>
+                          <Image source={{uri: items.img_prev}} style={styles.individualImage} />
+                          <Text numberOfLines={2} style={styles.textindividualLabels}>{items.category}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    )
+                  })}
+                </ScrollView>
               </View>
-            </View>
+            ) : (
+              <Text></Text>
+            )}
+            {searchbookslist.length != 0? (
+              <View style={styles.viewSearchedCategoryList}>
+                <Text style={styles.textLabelResults}>Books</Text>
+                <View style={styles.viewSectionsBooksResults}>
+                  {searchbookslist.map((items, i) => {
+                    return(
+                      <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl })}}>
+                        <View style={styles.viewIndividualResult}>
+                          <Image source={{uri: items.link_img}} style={styles.individualImage} />
+                          <Text numberOfLines={2} style={styles.textindividualLabels}>{items.name}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    )
+                  })}
+                </View>
+              </View>
+            ) : (
+              <Text></Text>
+            )}
           </ScrollView>
         </View>
       ) : (

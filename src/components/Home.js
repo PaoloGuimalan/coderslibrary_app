@@ -41,11 +41,13 @@ export default function Home({navigation}) {
             ) : (
               <View style={styles.viewNavigationsBar}>
                 <IconIon name='help-circle-outline' size={35} color="#4d4d4d" style={styles.iconsNavBarList} />
-                <View style={styles.viewAccountIcon}>
-                  <View style={styles.flexSignUpIcon}>
-                    <Text style={styles.userSignUp}>Sign Up | Sign In</Text>
+                <TouchableOpacity onPress={() => { navigation.navigate("Login") }}>
+                  <View style={styles.viewAccountIcon}>
+                    <View style={styles.flexSignUpIcon}>
+                      <Text style={styles.userSignUp}>Sign Up | Log In</Text>
+                    </View>
                   </View>
-                </View>
+                </TouchableOpacity>
               </View>
             )}
           </View>
