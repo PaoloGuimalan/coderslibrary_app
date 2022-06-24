@@ -1,8 +1,55 @@
 import { View, Text, StyleSheet, ScrollView, Image, TextInput, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import ImgLogo from '../resources/imgs/book_img.png'
+import IconFeather from 'react-native-vector-icons/Feather'
+import Axios from 'axios'
 
 const Register = ({navigation}) => {
+
+  const [codereqLoader, setcodereqLoader] = useState(false);
+  const [serverResponseMessage, setserverResponseMessage] = useState("");
+  const [serverResponseCode, setserverResponseCode] = useState("");
+  const [serverResponseStatus, setserverResponseStatus] = useState(false);
+  const [pendingResponseLoader, setpendingResponseLoader] = useState(true);
+
+  const [email, setemail] = useState("");
+
+  const codeVerifier = (codeValue) => {
+    if(serverResponseCode != "" || serverResponseCode != 0){
+      if(codeValue == serverResponseCode){
+        setserverResponseStatus(true);
+        setserverResponseMessage("Code is Matched!");
+      }
+      else{
+        setserverResponseStatus(false);
+        setserverResponseMessage("Code Incorrect!");
+      }
+    }
+  }
+
+  const codeRequestFetch = () => {
+    setcodereqLoader(true)
+    Axios.post('https://coderslibraryserver.herokuapp.com/sendMailCode', {
+      email: email
+    }).then((response) => {
+      if(response.data.status){
+        setserverResponseMessage(response.data.message)
+        setserverResponseCode(response.data.code)
+        setserverResponseStatus(response.data.status);
+        setpendingResponseLoader(false)
+      }
+      else{
+        setserverResponseMessage(response.data.message)
+        setserverResponseStatus(response.data.status);
+        setpendingResponseLoader(false)
+      }
+    }).catch((err) => {
+        setserverResponseMessage("Cannot connect to Server!")
+        setserverResponseStatus(false);
+        setpendingResponseLoader(false)
+    })
+  }
+
   return (
     <View style={styles.mainView}>
       <ScrollView style={styles.mainScrollView} contentContainerStyle={styles.mainScrollViewContent}>
@@ -19,8 +66,28 @@ const Register = ({navigation}) => {
         <View style={styles.viewFormRegister}>
           <TextInput placeholder='First Name' style={styles.inputsRegister} />
           <TextInput placeholder='Last Name' style={styles.inputsRegister} />
-          <TextInput placeholder='Email' style={styles.inputsEmail} />
-          <TextInput placeholder='Email Verification Code' style={styles.inputsCode} />
+          <TextInput placeholder='Email' style={styles.inputsEmail} onChangeText={(e) => { setemail(e) }} />
+          <View style={styles.inputsCode}>
+            <TextInput placeholder='Email Verification Code' style={styles.inputEmailCode} onChangeText={(e) => { codeVerifier(e) }} />
+            <TouchableOpacity onPress={() => { codeRequestFetch() }} disabled={codereqLoader}>
+              <View style={styles.viewSendCode}>
+                <IconFeather name='send' size={20} />
+              </View>
+            </TouchableOpacity>
+          </View>
+          {codereqLoader? (
+            pendingResponseLoader?(
+              <Text style={styles.pendingEmailCode}>Generating and Sending Code...</Text>
+            ) : (
+              serverResponseStatus? (
+                <Text style={styles.responseEmailNoteTrue}>{serverResponseMessage}</Text>
+              ) : (
+                <Text style={styles.responseEmailNoteFalse}>{serverResponseMessage}</Text>
+              )
+            )
+          ) : (
+            <Text style={styles.noteEmailCode}>Note: Click the send button to receive a code at your inputted Email above.</Text>
+          )}
           <TextInput placeholder='Password' style={styles.inputsRegister} secureTextEntry={true} />
           <TextInput placeholder='Confirm Password' style={styles.inputsRegister} secureTextEntry={true} />
           <TouchableOpacity>
@@ -123,7 +190,9 @@ const styles = StyleSheet.create({
     maxWidth: 250,
     borderRadius: 5,
     textAlign: "center",
-    marginBottom: 25
+    marginBottom: 5,
+    flex: 1,
+    flexDirection: "row"
   },
   viewFormRegister:{
     backgroundColor: "white",
@@ -156,6 +225,55 @@ const styles = StyleSheet.create({
   },
   registerIndicator:{
     textDecorationLine: "underline"
+  },
+  viewSendCode:{
+    backgroundColor: "grey",
+    width: 45,
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5
+  },
+  inputEmailCode:{
+    width: 205,
+    textAlign: "center"
+  },
+  noteEmailCode:{
+    marginBottom: 25,
+    width: "100%",
+    backgroundColor: "white",
+    maxWidth: 250,
+    textAlign: "justify",
+    fontSize: 13,
+    color: "orange"
+  },
+  pendingEmailCode:{
+    marginBottom: 25,
+    width: "100%",
+    backgroundColor: "white",
+    maxWidth: 250,
+    textAlign: "justify",
+    fontSize: 13,
+    color: "orange"
+  },
+  responseEmailNoteTrue:{
+    marginBottom: 25,
+    width: "100%",
+    backgroundColor: "white",
+    maxWidth: 250,
+    textAlign: "justify",
+    fontSize: 13,
+    color: "green"
+  },
+  responseEmailNoteFalse:{
+    marginBottom: 25,
+    width: "100%",
+    backgroundColor: "white",
+    maxWidth: 250,
+    textAlign: "justify",
+    fontSize: 13,
+    color: "red"
   }
 })
 
