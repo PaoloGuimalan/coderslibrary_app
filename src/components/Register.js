@@ -12,7 +12,12 @@ const Register = ({navigation}) => {
   const [serverResponseStatus, setserverResponseStatus] = useState(false);
   const [pendingResponseLoader, setpendingResponseLoader] = useState(true);
 
+  //forms state
+  const [firstName, setfirstName] = useState("");
+  const [lastName, setlastName] = useState("");
   const [email, setemail] = useState("");
+  const [passwordMain, setpasswordMain] = useState("");
+  const [passwordCon, setpasswordCon] = useState("");
 
   const codeVerifier = (codeValue) => {
     if(serverResponseCode != "" || serverResponseCode != 0){
@@ -50,6 +55,16 @@ const Register = ({navigation}) => {
     })
   }
 
+  const submitRegister = () => {
+    const dataToTransmit = {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      passwordMain: passwordMain
+    }
+    // console.log(dataToTransmit)
+  }
+
   return (
     <View style={styles.mainView}>
       <ScrollView style={styles.mainScrollView} contentContainerStyle={styles.mainScrollViewContent}>
@@ -64,8 +79,8 @@ const Register = ({navigation}) => {
         <Text style={styles.mainNoteRegister}>Having an account in Coder's Library allows you to save numbers of book in your account as a list or even save a whole category instead. Your account will also allow you to tag and notify others books that you may want to suggest to them.</Text>
         <Text style={styles.mainLabelRegister}>Register</Text>
         <View style={styles.viewFormRegister}>
-          <TextInput placeholder='First Name' style={styles.inputsRegister} />
-          <TextInput placeholder='Last Name' style={styles.inputsRegister} />
+          <TextInput placeholder='First Name' style={styles.inputsRegister} onChangeText={(e) => { setfirstName(e) }} />
+          <TextInput placeholder='Last Name' style={styles.inputsRegister} onChangeText={(e) => { setlastName(e) }}/>
           <TextInput placeholder='Email' style={styles.inputsEmail} onChangeText={(e) => { setemail(e) }} />
           <View style={styles.inputsCode}>
             <TextInput placeholder='Email Verification Code' style={styles.inputEmailCode} onChangeText={(e) => { codeVerifier(e) }} />
@@ -88,9 +103,9 @@ const Register = ({navigation}) => {
           ) : (
             <Text style={styles.noteEmailCode}>Note: Click the send button to receive a code at your inputted Email above.</Text>
           )}
-          <TextInput placeholder='Password' style={styles.inputsRegister} secureTextEntry={true} />
-          <TextInput placeholder='Confirm Password' style={styles.inputsRegister} secureTextEntry={true} />
-          <TouchableOpacity>
+          <TextInput placeholder='Password' style={styles.inputsRegister} secureTextEntry={true} onChangeText={(e) => { setpasswordMain(e) }} />
+          <TextInput placeholder='Confirm Password' style={styles.inputsRegister} secureTextEntry={true} onChangeText={(e) => { setpasswordCon(e) }} />
+          <TouchableOpacity onPress={() => { submitRegister() }}>
             <Text style={styles.textButtonSubmit}>Submit</Text>
           </TouchableOpacity>
         </View>
