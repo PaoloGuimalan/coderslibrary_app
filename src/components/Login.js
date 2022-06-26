@@ -1,8 +1,49 @@
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import ImgLogo from '../resources/imgs/book_img.png'
+import Axios from 'axios'
 
 const Login = ({navigation}) => {
+
+  const [emailPrompt, setemailPrompt] = useState("");
+  const [passwordPrompt, setpasswordPrompt] = useState("");
+
+  const loginInit = () => {
+    //Login access to server
+    if((emailPrompt == "" && passwordPrompt != "") || (emailPrompt != "" && passwordPrompt == "")){
+        if(emailPrompt == ""){
+            alert("Email is Empty!");
+        }
+        else if(passwordPrompt == ""){
+            alert("Password is Empty!")
+        }
+        else{
+            alert("Please ensure all fields are filled up!")
+        }
+    }
+    else if(emailPrompt == "" && passwordPrompt == ""){
+        alert("All fields are Empty!")
+    }
+    else{
+        Axios.post('https://coderslibraryserver.herokuapp.com/userLogin', {
+            email: emailPrompt,
+            password: passwordPrompt
+        }).then((response) => {
+            //response login
+            // console.log(response.data)
+            if(response.data.status){
+                alert(response.data.message)
+            }
+            else{
+                alert(response.data.message)
+            }
+        }).catch((err) => {
+            //alert login failed
+            alert("Cannot connect to server!")
+        })
+    }
+  }
+
   return (
     <View style={styles.mainView}>
       <TouchableOpacity onPress={() => { navigation.navigate("Home") }}>
@@ -13,9 +54,9 @@ const Login = ({navigation}) => {
       </TouchableOpacity>
       <View style={styles.viewFormLogin}>
         <Text style={styles.mainLabelLogin}>Login</Text>
-        <TextInput placeholder='Email' style={styles.inputBoxes} />
-        <TextInput placeholder='Password' style={styles.inputBoxes} secureTextEntry={true} />
-        <TouchableOpacity>
+        <TextInput placeholder='Email' style={styles.inputBoxes} onChangeText={(e) => { setemailPrompt(e) }} />
+        <TextInput placeholder='Password' style={styles.inputBoxes} secureTextEntry={true} onChangeText={(e) => { setpasswordPrompt(e) }} />
+        <TouchableOpacity onPress={() => { loginInit() }}>
             <Text style={styles.textButtonLogin}>Login</Text>
         </TouchableOpacity>
         <View style={styles.noteIndicator}>
