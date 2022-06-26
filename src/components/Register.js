@@ -11,6 +11,7 @@ const Register = ({navigation}) => {
   const [serverResponseCode, setserverResponseCode] = useState("");
   const [serverResponseStatus, setserverResponseStatus] = useState(false);
   const [pendingResponseLoader, setpendingResponseLoader] = useState(true);
+  const [isVerified, setisVerified] = useState(false);
 
   //forms state
   const [firstName, setfirstName] = useState("");
@@ -23,6 +24,7 @@ const Register = ({navigation}) => {
     if(serverResponseCode != "" || serverResponseCode != 0){
       if(codeValue == serverResponseCode){
         setserverResponseStatus(true);
+        setisVerified(true);
         setserverResponseMessage("Code is Matched!");
       }
       else{
@@ -55,12 +57,58 @@ const Register = ({navigation}) => {
     })
   }
 
+  const verifiedRegistrationData = (verifiedData) => {
+    Axios.post('https://coderslibraryserver.herokuapp.com/createAccount', verifiedData).then((response) => {
+      //initiate response
+      if(response.data.status){
+        alert(response.data.message);
+        navigation.navigate("Login")
+      }
+      else{
+        alert(response.data.message);
+      }
+    }).catch((err) => {
+      //alert error
+      alert(err);
+    })
+  }
+
   const submitRegister = () => {
     const dataToTransmit = {
       firstName: firstName,
       lastName: lastName,
       email: email,
-      passwordMain: passwordMain
+      password: passwordMain
+    }
+
+    if(passwordMain == passwordCon){
+      if(passwordMain != "" && passwordCon != ""){
+        if(firstName == "" || lastName == "" || email == "" || !isVerified){
+          alert("Please provide all fields");
+        }
+        else if(firstName == ""){
+          alert("First Name Empty!")
+        }
+        else if(lastName == ""){
+          alert("Last Name Empty!")
+        }
+        else if(email == ""){
+          alert("Email Empty!")
+        }
+        else if(!isVerified){
+          alert("Verification Code is either do not match or not provided!")
+        }
+        else{
+          // alert("Good!");
+          verifiedRegistrationData(dataToTransmit)
+        }
+      }
+      else{
+        alert("Password Empty!")
+      }
+    }
+    else{
+      alert("Password not Matched!");
     }
     // console.log(dataToTransmit)
   }

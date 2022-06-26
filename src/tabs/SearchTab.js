@@ -25,8 +25,8 @@ const SearchTab = ({navigation}) => {
 
   const submitClicked = async () => {
     // alert(searchValue)
-    const searchBooksFetch = Axios.post('https://coderslibraryserver.herokuapp.com/searchBooks', { searchBooksValue: searchValue })
-    const searchCategoryFetch = Axios.post('https://coderslibraryserver.herokuapp.com/searchCategory', { searchCategoryValue: searchValue })
+    const searchBooksFetch = Axios.post('https://coderslibraryserver.herokuapp.com/searchBooks', { searchBooksValue: searchValue }).catch((err) => { dispatch({type: SEARCH_BOOKS, searchbookslist: []}) })
+    const searchCategoryFetch = Axios.post('https://coderslibraryserver.herokuapp.com/searchCategory', { searchCategoryValue: searchValue }).catch((err) => { dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: []}) })
 
     await Axios.all([searchBooksFetch, searchCategoryFetch]).then(
       Axios.spread((response1, response2) => {
@@ -36,7 +36,11 @@ const SearchTab = ({navigation}) => {
         dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: response2.data})
         setsearchinitialized(true);
       })
-    )
+    ).catch((err) => {
+        dispatch({type: SEARCH_BOOKS, searchbookslist: []})
+        dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: []})
+        setsearchinitialized(true);
+    })
   }
 
   return (
