@@ -7,18 +7,48 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { NavigationContainer } from '@react-navigation/native'
 import HomeTab from '../tabs/HomeTab'
 import BooksTab from '../tabs/BooksTab'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Axios from 'axios'
-import { BOOKS_LIST } from '../redux/types/types'
+import { BOOKS_LIST, SET_ACCOUNT } from '../redux/types/types'
 import ImgBackground from '../resources/imgs/background_rn.jpg'
 import ImgLogo from '../resources/imgs/book_img.png'
 import SearchTab from '../tabs/SearchTab'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const Tab = createNativeStackNavigator()
 
 export default function Home({navigation}) {
 
   const [loginstatustester, setloginstatustester] = useState(false);
+
+  const account = useSelector(state => state.account);
+  const dispatch = useDispatch()
+
+  const storageAccountCheck = async () => {
+    await AsyncStorage.getItem('token').then((resp) => {
+      Axios.get('https://coderslibraryserver.herokuapp.com/loginVerifier', {
+        headers:{
+          "x-access-token": resp
+        }
+      }).then((response) => {
+        // console.log(response.data)
+        if(response.data.status){
+          dispatch({type: SET_ACCOUNT, account: {...response.data}})
+        }
+        else{
+          dispatch({type: SET_ACCOUNT, account: {status: false, token: null, userName: null}})
+        }
+      }).catch((err) => {
+        //dispatch error
+        dispatch({type: SET_ACCOUNT, account: {status: false, token: null, userName: null}})
+      })
+      // console.log(resp);
+    })
+  }
+
+  useEffect(() => {
+    storageAccountCheck()
+  }, [])
 
   return (
     <View style={styles.mainView}>
@@ -28,13 +58,13 @@ export default function Home({navigation}) {
               <Image source={ImgLogo} style={styles.logoNavBarIcon} />
               <Text style={styles.textIconLabelBar}>Coder's Library</Text>
             </View>
-            {loginstatustester? (
+            {account.status? (
               <View style={styles.viewNavigationsBar}>
                 <IconIon name='ios-notifications' size={30} color="#4d4d4d" style={styles.iconsNavBarList} />
                 <View style={styles.viewAccountIcon}>
                   <View style={styles.flexAccountIcon}>
                     <IconIon name='person-circle-outline' size={35} color="#4d4d4d" style={styles.accountIcon} />
-                    <Text numberOfLines={1} style={styles.userLabelName}>Abdul Kalameshinti</Text>
+                    <Text numberOfLines={1} style={styles.userLabelName}>{account.userName}</Text>
                   </View>
                 </View>
               </View>

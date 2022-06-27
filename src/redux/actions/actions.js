@@ -1,4 +1,4 @@
-import { BOOKS_LIST, CATEGORIES_LIST, HOME_UPDATES, SEARCH_BOOKS, SEARCH_CATEGORIES } from "../types/types";
+import { BOOKS_LIST, CATEGORIES_LIST, HOME_UPDATES, SEARCH_BOOKS, SEARCH_CATEGORIES, SET_ACCOUNT } from "../types/types";
 
 export const setbookslist = (state = [], action) => {
     switch(action.type){
@@ -40,6 +40,21 @@ export const setsearchcategories = (state = [], action) => {
     switch(action.type){
         case SEARCH_CATEGORIES:
             return action.searchcategorieslist;
+        default:
+            return state;
+    }
+}
+
+const defaultAccountData = {
+    status: false,
+    token: null,
+    userName: null
+}
+
+export const setaccount = (state = defaultAccountData, action) => {
+    switch(action.type){
+        case SET_ACCOUNT:
+            return action.account;
         default:
             return state;
     }

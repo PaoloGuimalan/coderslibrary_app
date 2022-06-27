@@ -38,6 +38,9 @@ import Register from './src/components/Register';
 import { Provider } from 'react-redux';
 import store from './src/redux/store/store';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Axios from 'axios'
+
 const MainStack = createNativeStackNavigator();
 
 const Section = ({children, title}): Node => {

@@ -14,6 +14,7 @@ const HomeTab = ({navigation}) => {
 
   const homeupdates = useSelector(state => state.homeupdates)
   const categorieslist = useSelector(state => state.categorieslist)
+  const account = useSelector(state => state.account);
   const dispatch = useDispatch()
 
   useEffect(() => {

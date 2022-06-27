@@ -2,11 +2,16 @@ import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, ScrollView 
 import React, { useState, useEffect } from 'react'
 import ImgLogo from '../resources/imgs/book_img.png'
 import Axios from 'axios'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch, useSelector } from 'react-redux';
+import { SET_ACCOUNT } from '../redux/types/types';
 
 const Login = ({navigation}) => {
 
   const [emailPrompt, setemailPrompt] = useState("");
   const [passwordPrompt, setpasswordPrompt] = useState("");
+
+  const dispatch = useDispatch()
 
   const loginInit = () => {
     //Login access to server
@@ -28,11 +33,14 @@ const Login = ({navigation}) => {
         Axios.post('https://coderslibraryserver.herokuapp.com/userLogin', {
             email: emailPrompt,
             password: passwordPrompt
-        }).then((response) => {
+        }).then( async (response) => {
             //response login
             // console.log(response.data)
             if(response.data.status){
-                alert(response.data.message)
+                // alert(response.data.message)
+                await AsyncStorage.setItem('token', response.data.token)
+                dispatch({type: SET_ACCOUNT, account: {status: true, token: response.data.token, userName: response.data.userName}})
+                navigation.navigate("Home");
             }
             else{
                 alert(response.data.message)
