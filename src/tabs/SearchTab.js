@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native'
-import React, { useState, useTransition } from 'react'
+import React, { useState, useTransition, useEffect } from 'react'
 import IconIon from 'react-native-vector-icons/Ionicons'
 import IconMCI from 'react-native-vector-icons/MaterialCommunityIcons'
 import Axios from 'axios'
@@ -15,6 +15,14 @@ const SearchTab = ({navigation}) => {
   const searchbookslist = useSelector(state => state.searchbookslist);
   const searchcategorieslist = useSelector(state => state.searchcategorieslist)
   const dispatch = useDispatch()
+
+  useEffect(() => {
+    return () => {
+      dispatch({type: SEARCH_BOOKS, searchbookslist: []})
+      dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: []})
+      setsearchinitialized(false);
+    }
+  }, [])
 
   const searchEnabler = (e) => {
     // startTransition(() => {
@@ -41,6 +49,13 @@ const SearchTab = ({navigation}) => {
         dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: []})
         setsearchinitialized(true);
     })
+
+    return () => {
+      dispatch({type: SEARCH_BOOKS, searchbookslist: []})
+      dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: []})
+      setsearchinitialized(false);
+    }
+
   }
 
   return (

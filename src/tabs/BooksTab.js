@@ -13,6 +13,14 @@ const BooksTab = ({navigation}) => {
   const dispatch = useDispatch()
 
   useEffect(() => {
+    getBooks()
+    return () => { 
+      dispatch({type: BOOKS_LIST, bookslist: []}) 
+      setloader(true);
+    }
+  }, [])
+
+  const getBooks = () => {
     Axios.get("https://coderslibraryserver.herokuapp.com/books")
     .then((response) => {
         // console.log(response.data.books);
@@ -22,7 +30,12 @@ const BooksTab = ({navigation}) => {
     }).catch((err) => {
       dispatch({type: BOOKS_LIST, bookslist: []})
     })
-  }, [])
+
+    return () => { 
+      dispatch({type: BOOKS_LIST, bookslist: []}) 
+      setloader(true);
+    }
+  }
 
   return (
     <View style={styles.mainView}>

@@ -9,7 +9,7 @@ import HomeTab from '../tabs/HomeTab'
 import BooksTab from '../tabs/BooksTab'
 import { useDispatch, useSelector } from 'react-redux'
 import Axios from 'axios'
-import { BOOKS_LIST, SET_ACCOUNT } from '../redux/types/types'
+import { BOOKS_LIST, SET_ACCESSIBILITIES, SET_ACCOUNT } from '../redux/types/types'
 import ImgBackground from '../resources/imgs/background_rn.jpg'
 import ImgLogo from '../resources/imgs/book_img.png'
 import SearchTab from '../tabs/SearchTab'
@@ -22,6 +22,7 @@ export default function Home({navigation}) {
   const [loginstatustester, setloginstatustester] = useState(false);
 
   const account = useSelector(state => state.account);
+  const accessibilities = useSelector(state => state.accessibilities);
   const dispatch = useDispatch()
 
   const storageAccountCheck = async () => {
@@ -34,16 +35,23 @@ export default function Home({navigation}) {
         // console.log(response.data)
         if(response.data.status){
           dispatch({type: SET_ACCOUNT, account: {...response.data}})
+          setaccessibilitiesFunc()
         }
         else{
           dispatch({type: SET_ACCOUNT, account: {status: false, token: null, userName: null}})
+          setaccessibilitiesFunc()
         }
       }).catch((err) => {
         //dispatch error
         dispatch({type: SET_ACCOUNT, account: {status: false, token: null, userName: null}})
+        setaccessibilitiesFunc()
       })
       // console.log(resp);
     })
+  }
+
+  const setaccessibilitiesFunc = () => {
+    dispatch({type: SET_ACCESSIBILITIES, accessibilities: false})
   }
 
   useEffect(() => {
@@ -61,17 +69,19 @@ export default function Home({navigation}) {
             {account.status? (
               <View style={styles.viewNavigationsBar}>
                 <IconIon name='ios-notifications' size={30} color="#4d4d4d" style={styles.iconsNavBarList} />
-                <View style={styles.viewAccountIcon}>
-                  <View style={styles.flexAccountIcon}>
-                    <IconIon name='person-circle-outline' size={35} color="#4d4d4d" style={styles.accountIcon} />
-                    <Text numberOfLines={1} style={styles.userLabelName}>{account.userName}</Text>
+                <TouchableOpacity onPress={() => { navigation.navigate("Profile", {userName: account.userName}) }} disabled={accessibilities}>
+                  <View style={styles.viewAccountIcon}>
+                    <View style={styles.flexAccountIcon}>
+                      <IconIon name='person-circle-outline' size={35} color="#4d4d4d" style={styles.accountIcon} />
+                      <Text numberOfLines={1} style={styles.userLabelName}>{account.userName}</Text>
+                    </View>
                   </View>
-                </View>
+                </TouchableOpacity>
               </View>
             ) : (
               <View style={styles.viewNavigationsBar}>
                 <IconIon name='help-circle-outline' size={35} color="#4d4d4d" style={styles.iconsNavBarList} />
-                <TouchableOpacity onPress={() => { navigation.navigate("Login") }}>
+                <TouchableOpacity onPress={() => { navigation.navigate("Login") }} disabled={accessibilities}>
                   <View style={styles.viewAccountIcon}>
                     <View style={styles.flexSignUpIcon}>
                       <Text style={styles.userSignUp}>Sign Up | Log In</Text>

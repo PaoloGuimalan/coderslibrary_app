@@ -7,3 +7,4 @@ export const SEARCH_CATEGORIES = 'SEARCH_CATEGORIES';
 //account controls
 
 export const SET_ACCOUNT = 'SET_ACCOUNT';
+export const SET_ACCESSIBILITIES = 'SET_ACCESSIBILITIES';

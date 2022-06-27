@@ -16,6 +16,11 @@ const ViewCategory = ({route, navigation}) => {
     }).catch((err) => {
       setbookslistcategory([]);
     })
+
+    return () => {
+      setbookslistcategory([]);
+      setloader(true)
+    }
   }, [route.params.catname])
 
   return (
