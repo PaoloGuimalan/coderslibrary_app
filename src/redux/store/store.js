@@ -1,5 +1,5 @@
 import { createStore, combineReducers } from "redux";
-import { setaccessibilities, setaccount, setbookslist, setcategorieslist, sethomeupdates, setsearchbooks, setsearchcategories } from "../actions/actions";
+import { setaccessibilities, setaccount, setbookslist, setcategorieslist, sethomeupdates, setprofile, setsearchbooks, setsearchcategories } from "../actions/actions";
 
 const combiner = combineReducers({
     bookslist: setbookslist,
@@ -8,7 +8,8 @@ const combiner = combineReducers({
     searchbookslist: setsearchbooks,
     searchcategorieslist: setsearchcategories,
     account: setaccount,
-    accessibilities: setaccessibilities
+    accessibilities: setaccessibilities,
+    profile: setprofile
 })
 
 const store = createStore(combiner);
