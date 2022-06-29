@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet, Dimensions } from 'react-native'
 import React, { useEffect } from 'react'
 import Pdf from 'react-native-pdf'
+import Axios from 'axios'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const ViewBook = ({route, navigation}) => {
     const source = { uri: route.params.url, cache: true };
@@ -12,8 +14,24 @@ const ViewBook = ({route, navigation}) => {
     //const source = {uri:"blob:xxxxxxxx-...?offset=0&size=xxx"};
 
     useEffect(() => {
-        // console.log(route.params.url)
+        // console.log(route.params.bookID)
+        recentAdderPost()
     }, [])
+
+    const recentAdderPost = async () => {
+        await AsyncStorage.getItem('token').then((resp) => {
+            Axios.post('https://coderslibraryserver.herokuapp.com/addRecents', {
+                book_id: route.params.bookID
+            },{
+                headers: {
+                    "x-access-token": resp
+                }
+            }).catch((err) => {
+                //alert error
+                // alert("Unable to load Recents");
+            })
+        })
+    }
 
     return (
         <View style={styles.container}>

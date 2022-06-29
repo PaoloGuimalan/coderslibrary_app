@@ -4,6 +4,7 @@ import IconIon from 'react-native-vector-icons/Ionicons'
 import { useDispatch, useSelector } from 'react-redux'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { SET_ACCOUNT } from '../redux/types/types'
+import Axios from 'axios'
 
 const Profile = ({route, navigation: { goBack, navigate }}) => {
 
@@ -12,7 +13,22 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
 
   useEffect(() => {
     // console.log(route)
+    fetchRecents()
   }, [])
+
+  const fetchRecents = async () => {
+    await AsyncStorage.getItem('token').then((resp) => {
+      Axios.get('https://coderslibraryserver.herokuapp.com/userRecentsList', {
+        headers: {
+          "x-access-token": resp
+        }
+      }).then((response) => {
+        // console.log(response.data)
+      }).catch((err) => {
+        //dispatch state error
+      })
+    })
+  }
 
   const logoutTrigger = () => {
     // alert("Logout")

@@ -82,7 +82,7 @@ const HomeTab = ({navigation}) => {
             ) : (
               homeupdates.map((items, i) => {
                 return(
-                  <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl })}}>
+                  <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl, bookID: items.id })}}>
                     <View style={styles.homeupdatesView}>
                       <Image source={{uri: items.link_img}} style={styles.imageWNSizing} />
                       <Text numberOfLines={2} style={styles.textWNLabels}>{items.name}</Text>

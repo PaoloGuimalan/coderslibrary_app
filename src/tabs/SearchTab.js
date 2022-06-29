@@ -95,7 +95,7 @@ const SearchTab = ({navigation}) => {
                 <View style={styles.viewSectionsBooksResults}>
                   {searchbookslist.map((items, i) => {
                     return(
-                      <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl })}}>
+                      <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl, bookID: items.id })}}>
                         <View style={styles.viewIndividualResult}>
                           <Image source={{uri: items.link_img}} style={styles.individualImage} />
                           <Text numberOfLines={2} style={styles.textindividualLabels}>{items.name}</Text>

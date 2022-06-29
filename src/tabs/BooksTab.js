@@ -47,10 +47,10 @@ const BooksTab = ({navigation}) => {
            ) : (
             bookslist.map((items, i) => {
               return(
-                  <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl })}}>
+                  <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl, bookID: items.id })}}>
                     <View style={styles.viewBookSizingList}>
                         <Image source={{uri: items.link_img}} style={styles.imgSizing} />
-                        {/* <Text>{items.link_img}</Text> */}
+                        {/* <Text>{items.id}</Text> */}
                     </View>
                   </TouchableOpacity>
               )
