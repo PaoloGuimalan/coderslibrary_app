@@ -6,15 +6,19 @@ import IconEnt from 'react-native-vector-icons/Entypo'
 import IconFeather from 'react-native-vector-icons/Feather'
 import { useDispatch, useSelector } from 'react-redux'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { SET_ACCOUNT, SET_PROFILE } from '../redux/types/types'
+import { SET_ACCOUNT, SET_PROFILE, SET_RECENTS } from '../redux/types/types'
 import Axios from 'axios'
 import RecentsTab from '../tabs/profileTabs/RecentsTab'
 import TagsTab from '../tabs/profileTabs/TagsTab'
 import SavesTab from '../tabs/profileTabs/SavesTab'
 import DownloadsTab from '../tabs/profileTabs/DownloadsTab'
 import InfosTab from '../tabs/profileTabs/InfosTab'
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native'
 
 const { width, height } = Dimensions.get("window");
+
+const MiniTab = createNativeStackNavigator()
 
 const Profile = ({route, navigation: { goBack, navigate }}) => {
 
@@ -51,6 +55,7 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
         }
       }).then((response) => {
         // console.log(response.data)
+        dispatch({type: SET_RECENTS, recents: response.data})
       }).catch((err) => {
         //dispatch state error
       })
@@ -69,6 +74,18 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
     })
   }
 
+  const [rotationState, setrotationState] = useState(true);
+
+  useEffect(() => {
+    Dimensions.addEventListener('change', ({window:{width,height}})=>{
+      if (width<height) {
+        setrotationState(true)
+      } else {
+        setrotationState(false)
+      }
+    })
+  }, [])
+
   return (
     <View style={styles.mainView}>
       <View style={styles.navBar}>
@@ -80,7 +97,7 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
             </View>
           </TouchableOpacity>
           <View style={styles.flexViewMiddleBar}>
-            <Text style={styles.screenMainLabel}>Profile</Text>
+            <Text style={styles.screenMainLabel}>Profile{rotationState? "" : ` | ${profile.userName}`}</Text>
           </View>
           <TouchableOpacity onPress={() => { logoutTrigger() }}>
             <View style={styles.viewBackButton}>
@@ -90,43 +107,47 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
           </TouchableOpacity>
         </View>
       </View>
-      <ScrollView style={styles.scrollViewSizing} contentContainerStyle={styles.scrollViewFlex}>
-        <View style={styles.viewProfileMain}>
-          <View style={styles.flexViewProfileMain}>
-            <IconIon name='person-circle-outline' size={100} color="#4d4d4d" />
-            <View>
-              <Text numberOfLines={1} style={styles.textFullName}>{profile.firstName} {profile.lastName}</Text>
-              <Text style={styles.textUserName}>@{profile.userName}</Text>
+      <ScrollView style={styles.scrollViewSizing} contentContainerStyle={styles.scrollViewFlex} stickyHeaderIndices={[1]}>
+        {rotationState? (
+          <View style={styles.viewProfileMain}>
+            <View style={styles.flexViewProfileMain}>
+              <IconIon name='person-circle-outline' size={100} color="#4d4d4d" />
+              <View>
+                <Text numberOfLines={1} style={styles.textFullName}>{profile.firstName} {profile.lastName}</Text>
+                <Text style={styles.textUserName}>@{profile.userName}</Text>
+              </View>
             </View>
           </View>
-        </View>
+        ):(
+          <View></View>
+        )}
         <View style={styles.viewCountDetails}>
           <View style={styles.viewCountDetailsFlex}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => { navigate("RecentsTab") }}>
               <View style={styles.indivCountDetails}>
                 <IconMCI name='history' size={30} />
                 <Text style={styles.textCountsDetails}>Recents</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => { navigate("TagsTab") }}>
               <View style={styles.indivCountDetails}>
                 <IconIon name='pricetags-outline' size={26} />
                 <Text style={styles.textCountsDetails}>Tags</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => { navigate("SavesTab") }}>
               <View style={styles.indivCountDetails}>
                 <IconIon name='heart' size={27} />
                 <Text style={styles.textCountsDetails}>Saves</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => { navigate("DownloadsTab") }}>
               <View style={styles.indivCountDetails}>
                 <IconFeather name='download' size={30} />
                 <Text style={styles.textCountsDetails}>Downloads</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => { navigate("InfosTab") }}>
               <View style={styles.indivCountDetails}>
                 <IconEnt name='dots-three-horizontal' size={30} />
                 <Text style={styles.textCountsDetails}>Infos</Text>
@@ -135,11 +156,18 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
           </View>
         </View>
         <ScrollView horizontal snapToInterval={width} decelerationRate="fast" contentContainerStyle={styles.scrollContainerProfile}>
-          <RecentsTab />
+          {/* <RecentsTab />
           <TagsTab />
           <SavesTab />
           <DownloadsTab />
-          <InfosTab />
+          <InfosTab /> */}
+          <MiniTab.Navigator screenOptions={{gestureEnabled: true, animation: "slide_from_right"}}>
+            <MiniTab.Screen name='RecentsTab' component={RecentsTab} options={{headerShown: false}} />
+            <MiniTab.Screen name='TagsTab' component={TagsTab} options={{headerShown: false}} />
+            <MiniTab.Screen name='SavesTab' component={SavesTab} options={{headerShown: false}} />
+            <MiniTab.Screen name='DownloadsTab' component={DownloadsTab} options={{headerShown: false}} />
+            <MiniTab.Screen name='InfosTab' component={InfosTab} options={{headerShown: false}} />
+          </MiniTab.Navigator>
         </ScrollView>
       </ScrollView>
     </View>

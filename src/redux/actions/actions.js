@@ -1,4 +1,4 @@
-import { BOOKS_LIST, CATEGORIES_LIST, HOME_UPDATES, SEARCH_BOOKS, SEARCH_CATEGORIES, SET_ACCESSIBILITIES, SET_ACCOUNT, SET_PROFILE } from "../types/types";
+import { BOOKS_LIST, CATEGORIES_LIST, HOME_UPDATES, SEARCH_BOOKS, SEARCH_CATEGORIES, SET_ACCESSIBILITIES, SET_ACCOUNT, SET_PROFILE, SET_RECENTS } from "../types/types";
 
 export const setbookslist = (state = [], action) => {
     switch(action.type){
@@ -70,10 +70,10 @@ export const setaccessibilities = (state = true, action) => {
 }
 
 const dataProfile = {
-    userName: "...loading",
-    firstName: "...loading",
-    lastName: "...loading",
-    email: "...loading"
+    userName: "...",
+    firstName: "...",
+    lastName: "...",
+    email: "..."
 }
 
 export const setprofile = (state = dataProfile, action) => {
@@ -82,5 +82,14 @@ export const setprofile = (state = dataProfile, action) => {
             return action.profile;
         default:
             return state
+    }
+}
+
+export const setrecents = (state = [], action) => {
+    switch(action.type){
+        case SET_RECENTS:
+            return action.recents;
+        default:
+            return state;
     }
 }
