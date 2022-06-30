@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import IconIon from 'react-native-vector-icons/Ionicons'
 import IconMCI from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -8,6 +8,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { SET_ACCOUNT, SET_PROFILE } from '../redux/types/types'
 import Axios from 'axios'
+import RecentsTab from '../tabs/profileTabs/RecentsTab'
+import TagsTab from '../tabs/profileTabs/TagsTab'
+import SavesTab from '../tabs/profileTabs/SavesTab'
+import DownloadsTab from '../tabs/profileTabs/DownloadsTab'
+import InfosTab from '../tabs/profileTabs/InfosTab'
+
+const { width, height } = Dimensions.get("window");
 
 const Profile = ({route, navigation: { goBack, navigate }}) => {
 
@@ -127,6 +134,13 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
             </TouchableOpacity>
           </View>
         </View>
+        <ScrollView horizontal snapToInterval={width} decelerationRate="fast" contentContainerStyle={styles.scrollContainerProfile}>
+          <RecentsTab />
+          <TagsTab />
+          <SavesTab />
+          <DownloadsTab />
+          <InfosTab />
+        </ScrollView>
       </ScrollView>
     </View>
   )
@@ -175,7 +189,7 @@ const styles = StyleSheet.create({
     },
     scrollViewFlex:{
       flexGrow: 1,
-      backgroundColor: "green",
+      backgroundColor: "white",
       alignItems: "center"
     },
     scrollViewSizing:{
@@ -222,6 +236,17 @@ const styles = StyleSheet.create({
     },
     textCountsDetails:{
       fontSize: 13
+    },
+    textTester:{
+      fontSize: 50
+    },
+    scrollContainerProfile:{
+      flexGrow: 1,
+      flexDirection: "row"
+    },
+    profileAccessViews:{
+      backgroundColor: "aqua",
+      width: width
     }
 })
 
