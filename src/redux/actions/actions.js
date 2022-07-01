@@ -1,4 +1,4 @@
-import { BOOKS_LIST, CATEGORIES_LIST, HOME_UPDATES, SEARCH_BOOKS, SEARCH_CATEGORIES, SET_ACCESSIBILITIES, SET_ACCOUNT, SET_PROFILE, SET_RECENTS } from "../types/types";
+import { BOOKS_LIST, CATEGORIES_LIST, HOME_UPDATES, SEARCH_BOOKS, SEARCH_CATEGORIES, SET_ACCESSIBILITIES, SET_ACCOUNT, SET_BOOK_INFO, SET_PROFILE, SET_RECENTS } from "../types/types";
 
 export const setbookslist = (state = [], action) => {
     switch(action.type){
@@ -89,6 +89,27 @@ export const setrecents = (state = [], action) => {
     switch(action.type){
         case SET_RECENTS:
             return action.recents;
+        default:
+            return state;
+    }
+}
+
+export const bookinfodata = {
+    _id: "...",
+    id: "...",
+    category: "...",
+    name: "...",
+    author: "...",
+    publisher: "...",
+    link_img: "...",
+    date_added: "...",
+    link_dl: "..."
+}
+
+export const setbookinfo = (state = bookinfodata, action) => {
+    switch(action.type){
+        case SET_BOOK_INFO:
+            return action.bookinfo;
         default:
             return state;
     }

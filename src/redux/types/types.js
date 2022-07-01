@@ -11,3 +11,4 @@ export const SET_ACCESSIBILITIES = 'SET_ACCESSIBILITIES';
 export const SET_PROFILE = 'SET_PROFILE';
 
 export const SET_RECENTS = 'SET_RECENTS';
+export const SET_BOOK_INFO = 'SET_BOOK_INFO';
