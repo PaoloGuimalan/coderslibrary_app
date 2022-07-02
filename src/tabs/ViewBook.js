@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native'
-import React, { useEffect } from 'react'
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import Pdf from 'react-native-pdf'
 import Axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -16,6 +16,8 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     //const source = {uri:"data:application/pdf;base64,JVBERi0xLjcKJc..."};
     //const source = {uri:"content://com.example.blobs/xxxxxxxx-...?offset=0&size=xxx"};
     //const source = {uri:"blob:xxxxxxxx-...?offset=0&size=xxx"};
+
+    const [dropInfoView, setdropInfoView] = useState(true);
 
     const bookinfo = useSelector(state => state.bookinfo);
     const dispatch = useDispatch();
@@ -70,6 +72,26 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                         </View>
                     </TouchableOpacity>
                     <Text numberOfLines={1}>{bookinfo.name}</Text>
+                    <TouchableOpacity onPress={() => { setdropInfoView(!dropInfoView) }}>
+                        <View style={styles.viewBackButton}>
+                            <IconIon name={dropInfoView? 'close' : 'ios-menu'} size={25} />
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            <View style={{height: dropInfoView? 200 : 0, width: "100%", backgroundColor: "white", borderBottomWidth: 1, borderBottomColor: "#bfbfbf", marginBottom: 10, alignItems: "center" }}>
+                <View style={{flex: 1, backgroundColor: "white", width: "100%", flexDirection: "row"}}>
+                    <View style={{backgroundColor: "white", width: "50%", height: "100%", justifyContent: "center", alignItems: "center"}}>
+                        <Image source={{uri: bookinfo.link_img}} style={{width: 100, height: dropInfoView? 150 : 0, borderWidth: dropInfoView? 1 : 0, borderColor: "#bfbfbf"}} />
+                    </View>
+                    <View style={{width: "50%", justifyContent: "flex-start", paddingTop: 22}}>
+                        <View>
+                            <Text>--Navigations Here!--</Text>
+                        </View>
+                        <Text style={styles.textBookInfo}>Category: {bookinfo.category}</Text>
+                        <Text style={styles.textBookInfo}>Publisher: {bookinfo.publisher}</Text>
+                        <Text style={styles.textBookInfo}>Author/s: {bookinfo.author}</Text>
+                    </View>
                 </View>
             </View>
             <Pdf
@@ -107,13 +129,15 @@ const styles = StyleSheet.create({
     navBarViewBook:{
         height: 50,
         borderBottomColor: "#bfbfbf",
-        borderBottomWidth: 1,
-        width: "100%"
+        borderBottomWidth: 0,
+        width: "100%",
+        backgroundColor: "white"
     },
     navBarFlexedViewBook:{
         flex: 1,
         flexDirection: "row",
-        alignItems: "center"
+        alignItems: "center",
+        justifyContent: "space-between"
     },
     viewBackButton:{
         width: 50,
@@ -121,6 +145,13 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "row"
+    },
+    viewBookInfo:{
+        height: 200,
+        width: "100%"
+    },
+    textBookInfo:{
+        marginBottom: 5
     }
 });
 
