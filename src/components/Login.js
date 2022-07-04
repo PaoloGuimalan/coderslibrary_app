@@ -4,7 +4,7 @@ import ImgLogo from '../resources/imgs/book_img.png'
 import Axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
-import { SET_ACCOUNT } from '../redux/types/types';
+import { SET_ACCOUNT, SET_PROFILE } from '../redux/types/types';
 
 const Login = ({navigation}) => {
 
@@ -40,6 +40,7 @@ const Login = ({navigation}) => {
                 // alert(response.data.message)
                 await AsyncStorage.setItem('token', response.data.token)
                 dispatch({type: SET_ACCOUNT, account: {status: true, token: response.data.token, userName: response.data.userName}})
+                fetchProfile(response.data.token)
                 navigation.navigate("Home");
             }
             else{
@@ -50,6 +51,19 @@ const Login = ({navigation}) => {
             alert("Cannot connect to server!")
         })
     }
+  }
+
+  const fetchProfile = async (token) => {
+    Axios.get('https://coderslibraryserver.herokuapp.com/userProfileDetails', {
+        headers: {
+          "x-access-token": token
+        }
+      }).then((response) => {
+        // console.log(response.data)
+        dispatch({type: SET_PROFILE, profile: response.data})
+      }).catch((err) => {
+        //dispatch state error
+      })
   }
 
   return (

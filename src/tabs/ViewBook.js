@@ -9,7 +9,7 @@ import IconEnt from 'react-native-vector-icons/Entypo'
 import IconFeather from 'react-native-vector-icons/Feather'
 import IconOcti from 'react-native-vector-icons/Octicons'
 import { useSelector, useDispatch } from 'react-redux'
-import { SET_BOOK_INFO } from '../redux/types/types'
+import { SET_BOOK_COMMENTS, SET_BOOK_INFO } from '../redux/types/types'
 import { bookinfodata } from '../redux/actions/actions'
 import ClipBoard from '@react-native-clipboard/clipboard'
 
@@ -25,9 +25,14 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const [dropInfoView, setdropInfoView] = useState(true);
     const [heartStatus, setheartStatus] = useState(false);
     const [viewDefault, setviewDefault] = useState(true);
+    const [commentInitiator, setcommentInitiator] = useState(true);
+
+    const [textInputComment, settextInputComment] = useState("");
 
     const bookinfo = useSelector(state => state.bookinfo);
     const account = useSelector(state => state.account);
+    const profile = useSelector(state => state.profile);
+    const bookcomments = useSelector(state => state.bookcomments)
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -76,6 +81,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const saveBook = async () => {
         // alert("Save")
         await AsyncStorage.getItem('token').then((resp) => {
+            // console.log(resp)
             Axios.post(`https://coderslibraryserver.herokuapp.com/saveBook`, {
                 bookID: bookinfo.id
             },{
@@ -165,6 +171,69 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
             })
         })
     }
+
+    const postComment = async () => {
+        await AsyncStorage.getItem('token').then((resp) => {
+            if(textInputComment == "" || null){
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show("Please type something." , ToastAndroid.SHORT)
+                }
+                else{
+                    alert("Please type something.")
+                }
+            }
+            else{
+                Axios.post(`https://coderslibraryserver.herokuapp.com/postComment`, {
+                    fullName: `${profile.firstName} ${profile.lastName}`,
+                    bookID: bookinfo.id, 
+                    content: textInputComment
+                },{
+                    headers: {
+                        "x-access-token": resp
+                    }
+                }).then((response) => {
+                    if(response.data.status){
+                        settextInputComment("")
+                        setcommentInitiator(!commentInitiator)
+                        if(Platform.OS === 'android'){
+                            ToastAndroid.show(response.data.message , ToastAndroid.SHORT)
+                        }
+                        else{
+                            alert(response.data.message)
+                        }
+                    }
+                    else{
+                        if(Platform.OS === 'android'){
+                            ToastAndroid.show(response.data.message , ToastAndroid.SHORT)
+                        }
+                        else{
+                            alert(response.data.message)
+                        }
+                    }
+                }).catch((err) => {
+                    if(Platform.OS === 'android'){
+                        ToastAndroid.show("Network Error!" , ToastAndroid.SHORT)
+                    }
+                    else{
+                        alert("Network Error!")
+                    }
+                })
+            }
+        })
+    }
+
+    useEffect(() => {
+        Axios.get(`https://coderslibraryserver.herokuapp.com/getComments/${bookinfo.id}`).then((response) => {
+            dispatch({type: SET_BOOK_COMMENTS, bookcomments: response.data})
+        }).catch((err) => {
+            if(Platform.OS === 'android'){
+                ToastAndroid.show("Network Error!" , ToastAndroid.SHORT)
+            }
+            else{
+                alert("Network Error!")
+            }
+        })
+    }, [bookinfo, commentInitiator])
 
     return (
         <View style={styles.container}>
@@ -284,39 +353,31 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                 <View style={styles.viewTagsCommentsMain}>
                     <ScrollView style={styles.scrollViewTCStyling} contentContainerStyle={styles.scrollViewTC}>
                         <Text style={styles.tagsCommentsLabel}>Tags &#38; Comments</Text>
-                        <View style={styles.viewFormTC}>
-                            <TextInput multiline={true} style={styles.textInputFormTC} placeholder='Write a comment or mention someone to tage them.' />
-                            <TouchableOpacity>
-                                <Text style={styles.textPostCommentBtn}>Post Comment</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.viewindvComments}>
-                            <View style={styles.viewUserName}>
-                                <Text style={styles.textFullName}>Paolo Guimalan</Text><Text> | </Text><Text style={styles.textUserName}>@Paolo_123456</Text>
+                        {account.status? (
+                            <View style={styles.viewFormTC}>
+                                <TextInput editable={account.status} selectTextOnFocus={account.status} defaultValue={textInputComment} onChangeText={(e) => { settextInputComment(e) }} multiline={true} style={styles.textInputFormTC} placeholder='Write a comment or mention someone to tage them.' />
+                                <TouchableOpacity onPress={() => { postComment() }} disabled={account.status? false:true}>
+                                    <Text style={styles.textPostCommentBtn}>Post Comment</Text>
+                                </TouchableOpacity>
                             </View>
-                            <Text style={styles.textContentComment}>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</Text>
-                            <View style={styles.viewUserName}>
-                                <Text style={styles.textDateDisplayed}>04/07/2022</Text><Text style={styles.textDateDisplayed}> | </Text><Text style={styles.textDateDisplayed}>12:47am</Text>
+                        ) : (
+                            <View style={styles.viewFormTC}>
+                                <Text style={styles.loggedoutlabel}>You are not Logged In!</Text>
                             </View>
-                        </View>
-                        <View style={styles.viewindvComments}>
-                            <View style={styles.viewUserName}>
-                                <Text style={styles.textFullName}>Paolo Guimalan</Text><Text> | </Text><Text style={styles.textUserName}>@Paolo_123456</Text>
-                            </View>
-                            <Text style={styles.textContentComment}>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.</Text>
-                            <View style={styles.viewUserName}>
-                                <Text style={styles.textDateDisplayed}>04/07/2022</Text><Text style={styles.textDateDisplayed}> | </Text><Text style={styles.textDateDisplayed}>12:47am</Text>
-                            </View>
-                        </View>
-                        <View style={styles.viewindvComments}>
-                            <View style={styles.viewUserName}>
-                                <Text style={styles.textFullName}>Paolo Guimalan</Text><Text> | </Text><Text style={styles.textUserName}>@Paolo_123456</Text>
-                            </View>
-                            <Text style={styles.textContentComment}>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.</Text>
-                            <View style={styles.viewUserName}>
-                                <Text style={styles.textDateDisplayed}>04/07/2022</Text><Text style={styles.textDateDisplayed}> | </Text><Text style={styles.textDateDisplayed}>12:47am</Text>
-                            </View>
-                        </View>
+                        )}
+                        {bookcomments.map((cmts, i) => {
+                            return(
+                                <View style={styles.viewindvComments} key={i}>
+                                    <View style={styles.viewUserName}>
+                                        <Text style={styles.textFullName}>{cmts.fullName}</Text><Text> | </Text><Text style={styles.textUserName}>@{cmts.userName}</Text>
+                                    </View>
+                                    <Text style={styles.textContentComment}>{cmts.content}</Text>
+                                    <View style={styles.viewUserName}>
+                                        <Text style={styles.textDateDisplayed}>{cmts.dateposted}</Text><Text style={styles.textDateDisplayed}> | </Text><Text style={styles.textDateDisplayed}>{cmts.timeposted}</Text>
+                                    </View>
+                                </View>
+                            )
+                        })}
                     </ScrollView>
                 </View>
             )}
@@ -470,6 +531,10 @@ const styles = StyleSheet.create({
     textDateDisplayed:{
         fontSize: 12,
         color: "#acacac"
+    },
+    loggedoutlabel:{
+        marginBottom: 30,
+        marginTop: 10
     }
 });
 

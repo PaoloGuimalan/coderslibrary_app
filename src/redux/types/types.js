@@ -12,3 +12,4 @@ export const SET_PROFILE = 'SET_PROFILE';
 
 export const SET_RECENTS = 'SET_RECENTS';
 export const SET_BOOK_INFO = 'SET_BOOK_INFO';
+export const SET_BOOK_COMMENTS = 'SET_BOOK_COMMENTS';

@@ -9,11 +9,12 @@ import HomeTab from '../tabs/HomeTab'
 import BooksTab from '../tabs/BooksTab'
 import { useDispatch, useSelector } from 'react-redux'
 import Axios from 'axios'
-import { BOOKS_LIST, SET_ACCESSIBILITIES, SET_ACCOUNT } from '../redux/types/types'
+import { BOOKS_LIST, SET_ACCESSIBILITIES, SET_ACCOUNT, SET_PROFILE } from '../redux/types/types'
 import ImgBackground from '../resources/imgs/background_rn.jpg'
 import ImgLogo from '../resources/imgs/book_img.png'
 import SearchTab from '../tabs/SearchTab'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { dataProfile } from '../redux/actions/actions'
 
 const Tab = createNativeStackNavigator()
 
@@ -35,6 +36,7 @@ export default function Home({navigation}) {
         // console.log(response.data)
         if(response.data.status){
           dispatch({type: SET_ACCOUNT, account: {...response.data}})
+          fetchProfile()
           setaccessibilitiesFunc()
         }
         else{
@@ -52,6 +54,22 @@ export default function Home({navigation}) {
 
   const setaccessibilitiesFunc = () => {
     dispatch({type: SET_ACCESSIBILITIES, accessibilities: false})
+  }
+
+  const fetchProfile = async () => {
+    await AsyncStorage.getItem('token').then((resp) => {
+      Axios.get('https://coderslibraryserver.herokuapp.com/userProfileDetails', {
+        headers: {
+          "x-access-token": resp
+        }
+      }).then((response) => {
+        // console.log(response.data)
+        dispatch({type: SET_PROFILE, profile: response.data})
+      }).catch((err) => {
+        //dispatch state error
+        dispatch({type: SET_PROFILE, profile: dataProfile})
+      })
+    })
   }
 
   useEffect(() => {
