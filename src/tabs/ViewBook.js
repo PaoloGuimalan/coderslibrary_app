@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image, ToastAndroid, Platform, Alert, Linking } from 'react-native'
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image, ToastAndroid, Platform, Alert, Linking, TextInput } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Pdf from 'react-native-pdf'
 import Axios from 'axios'
@@ -281,8 +281,43 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                 trustAllCerts={false}
                 style={styles.pdf}/>
             ) : (
-                <View>
-                    <Text>Tags &#38; Comments</Text>
+                <View style={styles.viewTagsCommentsMain}>
+                    <ScrollView style={styles.scrollViewTCStyling} contentContainerStyle={styles.scrollViewTC}>
+                        <Text style={styles.tagsCommentsLabel}>Tags &#38; Comments</Text>
+                        <View style={styles.viewFormTC}>
+                            <TextInput multiline={true} style={styles.textInputFormTC} placeholder='Write a comment or mention someone to tage them.' />
+                            <TouchableOpacity>
+                                <Text style={styles.textPostCommentBtn}>Post Comment</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.viewindvComments}>
+                            <View style={styles.viewUserName}>
+                                <Text style={styles.textFullName}>Paolo Guimalan</Text><Text> | </Text><Text style={styles.textUserName}>@Paolo_123456</Text>
+                            </View>
+                            <Text style={styles.textContentComment}>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</Text>
+                            <View style={styles.viewUserName}>
+                                <Text style={styles.textDateDisplayed}>04/07/2022</Text><Text style={styles.textDateDisplayed}> | </Text><Text style={styles.textDateDisplayed}>12:47am</Text>
+                            </View>
+                        </View>
+                        <View style={styles.viewindvComments}>
+                            <View style={styles.viewUserName}>
+                                <Text style={styles.textFullName}>Paolo Guimalan</Text><Text> | </Text><Text style={styles.textUserName}>@Paolo_123456</Text>
+                            </View>
+                            <Text style={styles.textContentComment}>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.</Text>
+                            <View style={styles.viewUserName}>
+                                <Text style={styles.textDateDisplayed}>04/07/2022</Text><Text style={styles.textDateDisplayed}> | </Text><Text style={styles.textDateDisplayed}>12:47am</Text>
+                            </View>
+                        </View>
+                        <View style={styles.viewindvComments}>
+                            <View style={styles.viewUserName}>
+                                <Text style={styles.textFullName}>Paolo Guimalan</Text><Text> | </Text><Text style={styles.textUserName}>@Paolo_123456</Text>
+                            </View>
+                            <Text style={styles.textContentComment}>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.</Text>
+                            <View style={styles.viewUserName}>
+                                <Text style={styles.textDateDisplayed}>04/07/2022</Text><Text style={styles.textDateDisplayed}> | </Text><Text style={styles.textDateDisplayed}>12:47am</Text>
+                            </View>
+                        </View>
+                    </ScrollView>
                 </View>
             )}
         </View>
@@ -361,6 +396,80 @@ const styles = StyleSheet.create({
         height: "100%",
         justifyContent: "flex-start",
         alignItems: "center"
+    },
+    tagsCommentsLabel:{
+        fontSize: 17,
+        fontWeight: "bold"
+    },
+    viewTagsCommentsMain:{
+        width: "100%",
+        height: "100%",
+        alignItems: "center",
+        flex: 1
+    },
+    viewFormTC:{
+        width: "100%",
+        marginTop: 5,
+        alignItems: "center",
+        padding: 5
+    },
+    scrollViewTC:{
+        flexGrow: 1,
+        alignItems: "center"
+    },
+    scrollViewTCStyling:{
+        width: "100%"
+    },
+    textInputFormTC:{
+        width: "90%",
+        borderColor: "#bfbfbf",
+        borderWidth: 1,
+        borderRadius: 5,
+        fontSize: 13,
+        backgroundColor: "#c1c1c1",
+        paddingLeft: 10,
+        maxWidth: 320
+    },
+    textPostCommentBtn:{
+        backgroundColor: "#363636",
+        marginTop: 10,
+        width: 120,
+        height: 35,
+        color: "white",
+        textAlign: "center",
+        textAlignVertical: "center",
+        borderRadius: 5,
+        marginBottom: 15
+    },
+    viewindvComments:{
+        backgroundColor: "white",
+        width: "90%",
+        maxWidth: 320,
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 10
+    },
+    viewUserName:{
+        flex: 1,
+        flexDirection: "row"
+    },
+    textFullName:{
+        fontSize: 15,
+        fontWeight: "bold"
+    },
+    textUserName:{
+        fontSize: 12,
+        textAlignVertical: "center",
+        color: "#acacac"
+    },
+    textContentComment:{
+        textAlign: "justify",
+        marginTop: 7,
+        marginBottom: 5
+    },
+    textDateDisplayed:{
+        fontSize: 12,
+        color: "#acacac"
     }
 });
 
