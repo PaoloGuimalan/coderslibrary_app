@@ -4,6 +4,7 @@ import IconIon from 'react-native-vector-icons/Ionicons'
 import IconMCI from 'react-native-vector-icons/MaterialCommunityIcons'
 import IconEnt from 'react-native-vector-icons/Entypo'
 import IconFeather from 'react-native-vector-icons/Feather'
+import IconOcti from 'react-native-vector-icons/Octicons'
 import { useDispatch, useSelector } from 'react-redux'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { SET_ACCOUNT, SET_PROFILE, SET_RECENTS } from '../redux/types/types'
@@ -131,7 +132,7 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { navigate("TagsTab") }}>
               <View style={styles.indivCountDetails}>
-                <IconIon name='pricetags-outline' size={26} />
+                <IconOcti name='comment-discussion' size={26} />
                 <Text style={styles.textCountsDetails}>Tags</Text>
               </View>
             </TouchableOpacity>
@@ -244,7 +245,7 @@ const styles = StyleSheet.create({
     },
     viewCountDetails:{
       backgroundColor: "white",
-      borderColor: "#bfbfbf",
+      borderColor: "#ededed",
       borderTopWidth: 1,
       borderBottomWidth: 1,
       height: 60,

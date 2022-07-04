@@ -7,6 +7,7 @@ import IconIon from 'react-native-vector-icons/Ionicons'
 import IconMCI from 'react-native-vector-icons/MaterialCommunityIcons'
 import IconEnt from 'react-native-vector-icons/Entypo'
 import IconFeather from 'react-native-vector-icons/Feather'
+import IconOcti from 'react-native-vector-icons/Octicons'
 import { useSelector, useDispatch } from 'react-redux'
 import { SET_BOOK_INFO } from '../redux/types/types'
 import { bookinfodata } from '../redux/actions/actions'
@@ -22,6 +23,8 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     //const source = {uri:"blob:xxxxxxxx-...?offset=0&size=xxx"};
 
     const [dropInfoView, setdropInfoView] = useState(true);
+    const [heartStatus, setheartStatus] = useState(false);
+    const [viewDefault, setviewDefault] = useState(true);
 
     const bookinfo = useSelector(state => state.bookinfo);
     const account = useSelector(state => state.account);
@@ -54,14 +57,15 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
 
     const getBookInfo = async () => {
         await AsyncStorage.getItem('token').then((resp) => {
-            Axios.get(`https://coderslibraryserver.herokuapp.com/getBookInfo/${route.params.bookID}`, {
+            Axios.get(`https://coderslibraryserver.herokuapp.com/getBookInfo/${route.params.bookID}/${account.status? account.userName : null}`, {
                 headers: {
                     "x-access-token": resp
                 }
             }).then((response) => {
                 //dispatch data
-                // console.log(response.data)
-                dispatch({type: SET_BOOK_INFO, bookinfo: response.data})
+                // console.log(response.data.bookInfo)
+                dispatch({type: SET_BOOK_INFO, bookinfo: response.data.bookInfo})
+                setheartStatus(response.data.saveInfo)
             }).catch((err) => {
                 //alert error
                 // alert("Unable to load Recents");
@@ -73,6 +77,8 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
         // alert("Save")
         await AsyncStorage.getItem('token').then((resp) => {
             Axios.post(`https://coderslibraryserver.herokuapp.com/saveBook`, {
+                bookID: bookinfo.id
+            },{
                 headers: {
                     "x-access-token": resp
                 }
@@ -80,6 +86,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                 //dispatch data
                 // console.log(response.data)
                 if(response.data.status){
+                    setheartStatus(true);
                     if(Platform.OS === 'android'){
                         ToastAndroid.show(response.data.message, ToastAndroid.SHORT)
                     }
@@ -93,12 +100,18 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
             }).catch((err) => {
                 //alert error
                 // alert("Unable to load Recents");
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show("Network Error", ToastAndroid.SHORT)
+                }
+                else{
+                    alert("Network Error")
+                }
             })
         })
     }
 
     const donwloadBook = () => {
-        alert("Download")
+        alert("Coming Soon!")
     }
 
     const copyLink = () => {
@@ -115,6 +128,42 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const openLink = () => {
         // alert("Open")
         Linking.openURL(`https://coderslibrary.netlify.app/books?book_id=${bookinfo.id}`)
+    }
+
+    const unsaveBook = async () => {
+        // alert("Unsave")
+        await AsyncStorage.getItem('token').then((resp) => {
+            Axios.get(`https://coderslibraryserver.herokuapp.com/unsaveBook/${bookinfo.id}`, {
+                headers: {
+                    "x-access-token": resp
+                }
+            }).then((response) => {
+                if(response.data.status){
+                    setheartStatus(false)
+                    if(Platform.OS === 'android'){
+                        ToastAndroid.show(response.data.message , ToastAndroid.SHORT)
+                    }
+                    else{
+                        alert(response.data.message)
+                    }
+                }
+                else{
+                    if(Platform.OS === 'android'){
+                        ToastAndroid.show(response.data.message , ToastAndroid.SHORT)
+                    }
+                    else{
+                        alert(response.data.message)
+                    }
+                }
+            }).catch((err) => {
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show("Network Error!" , ToastAndroid.SHORT)
+                }
+                else{
+                    alert("Network Error!")
+                }
+            })
+        })
     }
 
     return (
@@ -134,7 +183,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                     </TouchableOpacity>
                 </View>
             </View>
-            <View style={{height: dropInfoView? 200 : 0, width: "100%", backgroundColor: "white", borderBottomWidth: 1, borderBottomColor: "#bfbfbf", marginBottom: 10, alignItems: "center" }}>
+            <View style={{height: dropInfoView? 200 : 0, width: "100%", backgroundColor: "white", borderBottomWidth: 1, borderBottomColor: "#bfbfbf", marginBottom: 0, alignItems: "center", display: dropInfoView? "flex" : "none" }}>
                 <View style={{flex: 1, backgroundColor: "white", width: "100%", flexDirection: "row"}}>
                     <View style={{backgroundColor: "white", width: "40%", height: "100%", justifyContent: "center", alignItems: "center"}}>
                         {bookinfo.link_img != "..."? (
@@ -148,11 +197,19 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                         <View style={styles.viewNavigationButtons}>
                             {account.status? (
                                 <View style={styles.flexedNavigationButtons}>
-                                    <TouchableOpacity onPress={() => { saveBook() }}>
-                                        <View style={styles.indivCountDetails}>
-                                            <IconIon name='heart' size={20} />
-                                        </View>
-                                    </TouchableOpacity>
+                                    {heartStatus? (
+                                        <TouchableOpacity onPress={() => { unsaveBook() }}>
+                                            <View style={styles.indivCountDetails}>
+                                                <IconIon name='heart' size={20} color="#fe2c55" />
+                                            </View>
+                                        </TouchableOpacity>
+                                    ) : (
+                                        <TouchableOpacity onPress={() => { saveBook() }}>
+                                            <View style={styles.indivCountDetails}>
+                                                <IconIon name='heart-outline' size={20} />
+                                            </View>
+                                        </TouchableOpacity>
+                                    )}
                                     <TouchableOpacity onPress={() => { donwloadBook() }}>
                                         <View style={styles.indivCountDetails}>
                                             <IconFeather name='download' size={20} />
@@ -186,14 +243,31 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                         </View>
                         <Text style={styles.textBookInfo}>Category: {bookinfo.category}</Text>
                         <Text style={styles.textBookInfo}>Publisher: {bookinfo.publisher}</Text>
-                        <Text style={styles.textBookInfo}>Author/s: {bookinfo.author}</Text>
+                        <Text style={styles.textBookInfo} numberOfLines={2}>Author/s: {bookinfo.author}</Text>
+                        <TouchableOpacity onPress={() => { setviewDefault(!viewDefault) }}>
+                            <View style={styles.viewTagComments}>
+                                {viewDefault? (
+                                    <View style={styles.flexedTagComments}>
+                                        <Text style={{marginLeft: 5}}>Tags &#38; Comments</Text>
+                                        <IconIon name='ios-chevron-forward-outline' size={23} />
+                                    </View>
+                                ) : (
+                                    <View style={styles.flexedTagComments}>
+                                        <IconIon name='ios-chevron-back-outline' size={20} />
+                                        <Text style={{marginLeft: 5}}>Continue Reading</Text>
+                                    </View>
+                                )}
+                            </View>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>
-            <Pdf
+            <View style={{marginBottom: 10}}></View>
+            {viewDefault? (
+                <Pdf
                 source={source}
                 onLoadComplete={(numberOfPages,filePath) => {
-                    // console.log(`Number of pages: ${numberOfPages}`);
+                    // console.log(`Number of pages: ${numberOfPages} | ${filePath}`);
                 }}
                 onPageChanged={(page,numberOfPages) => {
                     // console.log(`Current page: ${page}`);
@@ -206,6 +280,11 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                 }}
                 trustAllCerts={false}
                 style={styles.pdf}/>
+            ) : (
+                <View>
+                    <Text>Tags &#38; Comments</Text>
+                </View>
+            )}
         </View>
     )
 }
@@ -252,20 +331,36 @@ const styles = StyleSheet.create({
     },
     viewNavigationButtons:{
         backgroundColor: "white",
-        height: 40,
+        height: 30,
         width: "100%"
     },
     flexedNavigationButtons:{
         flex: 1,
         flexDirection: "row",
         justifyContent: "flex-start",
-        alignItems: 'center'
+        alignItems: 'flex-start'
     },
     indivCountDetails:{
         margin: 2,
         borderWidth: 0,
         alignItems: 'center',
         width: 30
+    },
+    viewTagComments:{
+        borderColor: "#bfbfbf",
+        borderWidth: 1,
+        padding: 5,
+        marginLeft: 10,
+        maxWidth: 170,
+        borderRadius: 5,
+        height: 35
+    },
+    flexedTagComments:{
+        flex: 1,
+        flexDirection: "row",
+        height: "100%",
+        justifyContent: "flex-start",
+        alignItems: "center"
     }
 });
 

@@ -7,7 +7,7 @@ const TagsTab = () => {
   return (
     <View style={styles.mainView}>
       <ScrollView>
-        <Text style={styles.mainLabel}>Tags / Recomendations</Text>
+        <Text style={styles.mainLabel}>Tags &#38; Comments</Text>
       </ScrollView>
     </View>
   )
