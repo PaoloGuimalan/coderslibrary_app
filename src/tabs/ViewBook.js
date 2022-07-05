@@ -392,7 +392,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                                     <View style={styles.viewFlexedNoSearch}>
                                     <IconFeather name='wifi-off' size={80} />
                                     <Text style={styles.textLabelNoSearch}>No Network</Text>
-                                    <TouchableOpacity onPress={() => { getComments() }}>
+                                    <TouchableOpacity onPress={() => { getComments(); getBookInfo(); }}>
                                         <Text style={{marginTop: 20, color: "#4a4a4a", textDecorationLine: "underline"}}>Retry</Text>
                                     </TouchableOpacity>
                                     </View>
