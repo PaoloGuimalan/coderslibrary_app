@@ -12,6 +12,9 @@ import { useSelector, useDispatch } from 'react-redux'
 import { SET_BOOK_COMMENTS, SET_BOOK_INFO } from '../redux/types/types'
 import { bookinfodata } from '../redux/actions/actions'
 import ClipBoard from '@react-native-clipboard/clipboard'
+import * as Animatable from 'react-native-animatable'
+import IconAntDesign from 'react-native-vector-icons/AntDesign'
+
 
 const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const source = { uri: route.params.url, cache: true };
@@ -26,6 +29,9 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const [heartStatus, setheartStatus] = useState(false);
     const [viewDefault, setviewDefault] = useState(true);
     const [commentInitiator, setcommentInitiator] = useState(true);
+
+    const [loadingState, setloadingState] = useState(true);
+    const [NoNetwork, setNoNetwork] = useState(false);
 
     const [textInputComment, settextInputComment] = useState("");
 
@@ -223,9 +229,18 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     }
 
     useEffect(() => {
+        getComments()
+    }, [bookinfo, commentInitiator])
+
+    const getComments = () => {
+        setNoNetwork(false)
+        setloadingState(true);
         Axios.get(`https://coderslibraryserver.herokuapp.com/getComments/${bookinfo.id}`).then((response) => {
             dispatch({type: SET_BOOK_COMMENTS, bookcomments: response.data})
+            setloadingState(false)
         }).catch((err) => {
+            setNoNetwork(true)
+            setloadingState(false);
             if(Platform.OS === 'android'){
                 ToastAndroid.show("Network Error!" , ToastAndroid.SHORT)
             }
@@ -233,7 +248,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                 alert("Network Error!")
             }
         })
-    }, [bookinfo, commentInitiator])
+    }
 
     return (
         <View style={styles.container}>
@@ -365,19 +380,48 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                                 <Text style={styles.loggedoutlabel}>You are not Logged In!</Text>
                             </View>
                         )}
-                        {bookcomments.map((cmts, i) => {
-                            return(
-                                <View style={styles.viewindvComments} key={i}>
-                                    <View style={styles.viewUserName}>
-                                        <Text style={styles.textFullName}>{cmts.fullName}</Text><Text> | </Text><Text style={styles.textUserName}>@{cmts.userName}</Text>
-                                    </View>
-                                    <Text style={styles.textContentComment}>{cmts.content}</Text>
-                                    <View style={styles.viewUserName}>
-                                        <Text style={styles.textDateDisplayed}>{cmts.dateposted}</Text><Text style={styles.textDateDisplayed}> | </Text><Text style={styles.textDateDisplayed}>{cmts.timeposted}</Text>
+                        {loadingState? (
+                            <Animatable.View animation="rotate" duration={1000} delay={100} iterationDelay={0} iterationCount="infinite" easing="ease-out" style={styles.viewNoSearchDisplay}>
+                                <View style={styles.viewFlexedNoSearch}>
+                                <IconAntDesign name='loading1' size={30} />
+                                </View>
+                            </Animatable.View>
+                        ) : (
+                            NoNetwork? (
+                                <View style={styles.viewNoSearchDisplay}>
+                                    <View style={styles.viewFlexedNoSearch}>
+                                    <IconFeather name='wifi-off' size={80} />
+                                    <Text style={styles.textLabelNoSearch}>No Network</Text>
+                                    <TouchableOpacity onPress={() => { getComments() }}>
+                                        <Text style={{marginTop: 20, color: "#4a4a4a", textDecorationLine: "underline"}}>Retry</Text>
+                                    </TouchableOpacity>
                                     </View>
                                 </View>
+                            ) : (
+                                bookcomments.length == 0? (
+                                    <View style={styles.viewNoSearchDisplay}>
+                                        <View style={styles.viewFlexedNoSearch}>
+                                        <IconMCI name='comment-text-outline' size={100} />
+                                        <Text style={styles.textLabelNoSearch}>No Comments</Text>
+                                        </View>
+                                    </View>
+                                ) : (
+                                    bookcomments.map((cmts, i) => {
+                                        return(
+                                            <View style={styles.viewindvComments} key={i}>
+                                                <View style={styles.viewUserName}>
+                                                    <Text style={styles.textFullName}>{cmts.fullName}</Text><Text> | </Text><Text style={styles.textUserName}>@{cmts.userName}</Text>
+                                                </View>
+                                                <Text style={styles.textContentComment}>{cmts.content}</Text>
+                                                <View style={styles.viewUserName}>
+                                                    <Text style={styles.textDateDisplayed}>{cmts.dateposted}</Text><Text style={styles.textDateDisplayed}> | </Text><Text style={styles.textDateDisplayed}>{cmts.timeposted}</Text>
+                                                </View>
+                                            </View>
+                                        )
+                                    })
+                                )
                             )
-                        })}
+                        )}
                     </ScrollView>
                 </View>
             )}
@@ -535,7 +579,22 @@ const styles = StyleSheet.create({
     loggedoutlabel:{
         marginBottom: 30,
         marginTop: 10
-    }
+    },
+    viewNoSearchDisplay:{
+        borderWidth: 0,
+        width: 150,
+        height: 150,
+        marginTop: 50
+      },
+      viewFlexedNoSearch:{
+        flex: 1,
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center"
+      },
+      textLabelNoSearch:{
+        fontSize: 13
+      }
 });
 
 export default ViewBook
