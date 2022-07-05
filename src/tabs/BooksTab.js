@@ -5,10 +5,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import { BOOKS_LIST } from '../redux/types/types';
 import * as Animatable from 'react-native-animatable'
 import IconAntDesign from 'react-native-vector-icons/AntDesign'
+import IconFeather from 'react-native-vector-icons/Feather'
 
 const BooksTab = ({navigation}) => {
 
   const [loader, setloader] = useState(true);
+  const [NoNetwork, setNoNetwork] = useState(false);
 
   const bookslist = useSelector(state => state.bookslist);
 
@@ -23,6 +25,8 @@ const BooksTab = ({navigation}) => {
   }, [])
 
   const getBooks = () => {
+    setNoNetwork(false)
+    setloader(true)
     Axios.get("https://coderslibraryserver.herokuapp.com/books")
     .then((response) => {
         // console.log(response.data.books);
@@ -31,6 +35,8 @@ const BooksTab = ({navigation}) => {
         setloader(false)
     }).catch((err) => {
       dispatch({type: BOOKS_LIST, bookslist: []})
+      setNoNetwork(true)
+      setloader(false)
     })
 
     return () => { 
@@ -51,16 +57,28 @@ const BooksTab = ({navigation}) => {
               </View>
             </Animatable.View>
            ) : (
-            bookslist.map((items, i) => {
-              return(
-                  <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl, bookID: items.id })}}>
-                    <View style={styles.viewBookSizingList}>
-                        <Image source={{uri: items.link_img}} style={styles.imgSizing} />
-                        {/* <Text>{items.id}</Text> */}
-                    </View>
+            NoNetwork? (
+              <View style={styles.viewNoSearchDisplay}>
+                <View style={styles.viewFlexedNoSearch}>
+                  <IconFeather name='wifi-off' size={80} />
+                  <Text style={styles.textLabelNoSearch}>No Network</Text>
+                  <TouchableOpacity onPress={() => { getBooks() }}>
+                    <Text style={{marginTop: 20, color: "#4a4a4a", textDecorationLine: "underline"}}>Retry</Text>
                   </TouchableOpacity>
-              )
-            })
+                </View>
+              </View>
+            ) : (
+              bookslist.map((items, i) => {
+                return(
+                    <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl, bookID: items.id })}}>
+                      <View style={styles.viewBookSizingList}>
+                          <Image source={{uri: items.link_img}} style={styles.imgSizing} />
+                          {/* <Text>{items.id}</Text> */}
+                      </View>
+                    </TouchableOpacity>
+                )
+              })
+            )
            )}
         </ScrollView>
       </View>
@@ -156,6 +174,9 @@ const styles = StyleSheet.create({
       flexDirection: "column",
       justifyContent: "center",
       alignItems: "center"
+    },
+    textLabelNoSearch:{
+      fontSize: 13
     }
 })
 
