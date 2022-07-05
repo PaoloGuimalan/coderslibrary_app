@@ -2,14 +2,19 @@ import { View, Text, StyleSheet, TextInput, ScrollView, Image, TouchableOpacity 
 import React, { useState, useTransition, useEffect } from 'react'
 import IconIon from 'react-native-vector-icons/Ionicons'
 import IconMCI from 'react-native-vector-icons/MaterialCommunityIcons'
+import IconAntDesign from 'react-native-vector-icons/AntDesign'
+import IconFeather from 'react-native-vector-icons/Feather'
 import Axios from 'axios'
 import { useSelector, useDispatch } from 'react-redux'
 import { SEARCH_BOOKS, SEARCH_CATEGORIES } from '../redux/types/types'
+import * as Animatable from 'react-native-animatable'
 
 const SearchTab = ({navigation}) => {
 
   const [searchValue, setsearchValue] = useState("");
   const [searchinitialized, setsearchinitialized] = useState(false);
+  const [loadingState, setloadingState] = useState(false);
+  const [NoNetwork, setNoNetwork] = useState(false);
   // const [isPending, startTransition] = useTransition()
 
   const searchbookslist = useSelector(state => state.searchbookslist);
@@ -33,6 +38,9 @@ const SearchTab = ({navigation}) => {
 
   const submitClicked = async () => {
     // alert(searchValue)
+    setNoNetwork(false)
+    setloadingState(true)
+    setsearchinitialized(false)
     const searchBooksFetch = Axios.post('https://coderslibraryserver.herokuapp.com/searchBooks', { searchBooksValue: searchValue }).catch((err) => { dispatch({type: SEARCH_BOOKS, searchbookslist: []}) })
     const searchCategoryFetch = Axios.post('https://coderslibraryserver.herokuapp.com/searchCategory', { searchCategoryValue: searchValue }).catch((err) => { dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: []}) })
 
@@ -43,11 +51,14 @@ const SearchTab = ({navigation}) => {
         dispatch({type: SEARCH_BOOKS, searchbookslist: response1.data})
         dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: response2.data})
         setsearchinitialized(true);
+        setloadingState(false)
       })
     ).catch((err) => {
         dispatch({type: SEARCH_BOOKS, searchbookslist: []})
         dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: []})
         setsearchinitialized(true);
+        setloadingState(false);
+        setNoNetwork(true);
     })
 
     return () => {
@@ -68,57 +79,86 @@ const SearchTab = ({navigation}) => {
         </View>
       </View>
       {searchinitialized? (
-        <View style={styles.viewResults}>
-          <ScrollView style={styles.scrollSearchResult} contentContainerStyle={styles.containerScrollResults}>
-            {searchcategorieslist.length != 0? (
-              <View style={styles.viewSearchedCategoryList}>
-                <Text style={styles.textLabelResults}>Categories</Text>
-                <ScrollView contentContainerStyle={styles.scrollViewSectionsBooksResults} horizontal>
-                  {searchcategorieslist.map((items, i) => {
-                    return(
-                      <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewCategory", { catname: items.category })}}>
-                        <View style={styles.viewIndividualResult}>
-                          <Image source={{uri: items.img_prev}} style={styles.individualImage} />
-                          <Text numberOfLines={2} style={styles.textindividualLabels}>{items.category}</Text>
-                        </View>
-                      </TouchableOpacity>
-                    )
-                  })}
-                </ScrollView>
-              </View>
-            ) : (
-              <Text></Text>
-            )}
-            {searchbookslist.length != 0? (
-              <View style={styles.viewSearchedCategoryList}>
-                <Text style={styles.textLabelResults}>Books</Text>
-                <View style={styles.viewSectionsBooksResults}>
-                  {searchbookslist.map((items, i) => {
-                    return(
-                      <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl, bookID: items.id })}}>
-                        <View style={styles.viewIndividualResult}>
-                          <Image source={{uri: items.link_img}} style={styles.individualImage} />
-                          <Text numberOfLines={2} style={styles.textindividualLabels}>{items.name}</Text>
-                        </View>
-                      </TouchableOpacity>
-                    )
-                  })}
+        searchbookslist.length == 0 && searchcategorieslist.length == 0? (
+            NoNetwork? (
+              <View style={styles.viewNoSearchDisplay}>
+                <View style={styles.viewFlexedNoSearch}>
+                  <IconFeather name='wifi-off' size={80} />
+                  <Text style={styles.textLabelNoSearch}>No Network</Text>
+                  <TouchableOpacity onPress={() => { submitClicked() }}>
+                    <Text style={{marginTop: 20, color: "#4a4a4a", textDecorationLine: "underline"}}>Retry</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             ) : (
-              <Text></Text>
-            )}
-          </ScrollView>
-        </View>
+              <View style={styles.viewNoSearchDisplay}>
+                <View style={styles.viewFlexedNoSearch}>
+                  <IconMCI name='card-search-outline' size={100} />
+                  <Text style={styles.textLabelNoSearch}>No Result</Text>
+                </View>
+              </View>
+            )
+        ) : (
+          <View style={styles.viewResults}>
+            <ScrollView style={styles.scrollSearchResult} contentContainerStyle={styles.containerScrollResults}>
+              {searchcategorieslist.length != 0? (
+                <View style={styles.viewSearchedCategoryList}>
+                  <Text style={styles.textLabelResults}>Categories</Text>
+                  <ScrollView contentContainerStyle={styles.scrollViewSectionsBooksResults} horizontal>
+                    {searchcategorieslist.map((items, i) => {
+                      return(
+                        <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewCategory", { catname: items.category })}}>
+                          <View style={styles.viewIndividualResult}>
+                            <Image source={{uri: items.img_prev}} style={styles.individualImage} />
+                            <Text numberOfLines={2} style={styles.textindividualLabels}>{items.category}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      )
+                    })}
+                  </ScrollView>
+                </View>
+              ) : (
+                <Text></Text>
+              )}
+              {searchbookslist.length != 0? (
+                <View style={styles.viewSearchedCategoryList}>
+                  <Text style={styles.textLabelResults}>Books</Text>
+                  <View style={styles.viewSectionsBooksResults}>
+                    {searchbookslist.map((items, i) => {
+                      return(
+                        <TouchableOpacity key={i} onPress={() => {navigation.navigate("ViewBook", { url: items.link_dl, bookID: items.id })}}>
+                          <View style={styles.viewIndividualResult}>
+                            <Image source={{uri: items.link_img}} style={styles.individualImage} />
+                            <Text numberOfLines={2} style={styles.textindividualLabels}>{items.name}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      )
+                    })}
+                  </View>
+                </View>
+              ) : (
+                <Text></Text>
+              )}
+            </ScrollView>
+          </View>
+        )
       ) : (
         <View style={styles.viewNoSearch}>
           <ScrollView style={styles.scrollNoSearch} contentContainerStyle={styles.containerscrollNoSearch}>
-            <View style={styles.viewNoSearchDisplay}>
-              <View style={styles.viewFlexedNoSearch}>
-                <IconMCI name='cloud-search-outline' size={100} />
-                <Text style={styles.textLabelNoSearch}>Search something</Text>
+            {loadingState? (
+              <Animatable.View animation="rotate" duration={1000} delay={100} iterationDelay={0} iterationCount="infinite" easing="ease-out" style={styles.viewNoSearchDisplay}>
+                <View style={styles.viewFlexedNoSearch}>
+                  <IconAntDesign name='loading1' size={30} />
+                </View>
+              </Animatable.View>
+            ) : (
+              <View style={styles.viewNoSearchDisplay}>
+                <View style={styles.viewFlexedNoSearch}>
+                  <IconMCI name='cloud-search-outline' size={100} />
+                  <Text style={styles.textLabelNoSearch}>Search something</Text>
+                </View>
               </View>
-            </View>
+            )}
           </ScrollView>
         </View>
       )}

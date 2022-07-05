@@ -5,11 +5,14 @@ import Axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { SET_ACCOUNT, SET_PROFILE } from '../redux/types/types';
+import * as Animatable from 'react-native-animatable'
 
 const Login = ({navigation}) => {
 
   const [emailPrompt, setemailPrompt] = useState("");
   const [passwordPrompt, setpasswordPrompt] = useState("");
+
+  const [loadingState, setloadingState] = useState(false);
 
   const dispatch = useDispatch()
 
@@ -30,6 +33,7 @@ const Login = ({navigation}) => {
         alert("All fields are Empty!")
     }
     else{
+        setloadingState(true);
         Axios.post('https://coderslibraryserver.herokuapp.com/userLogin', {
             email: emailPrompt,
             password: passwordPrompt
@@ -44,10 +48,12 @@ const Login = ({navigation}) => {
                 navigation.navigate("Home");
             }
             else{
+                setloadingState(false)
                 alert(response.data.message)
             }
         }).catch((err) => {
             //alert login failed
+            setloadingState(false)
             alert("Cannot connect to server!")
         })
     }
@@ -70,7 +76,11 @@ const Login = ({navigation}) => {
     <View style={styles.mainView}>
       <TouchableOpacity onPress={() => { navigation.navigate("Home") }}>
         <View style={styles.viewIconLogo}>
-            <Image source={ImgLogo} style={styles.logoSizing}/>
+            {loadingState? (
+                <Animatable.Image animation="rotate" duration={1000} delay={500} iterationDelay={500} iterationCount="infinite" easing="ease-out" source={ImgLogo} style={styles.logoSizing}/>
+            ) : (
+                <Image source={ImgLogo} style={styles.logoSizing}/>
+            )}
             <Text style={styles.textLabel}>Coder's Library</Text>
         </View>
       </TouchableOpacity>
