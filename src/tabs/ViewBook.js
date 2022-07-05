@@ -31,6 +31,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const [commentInitiator, setcommentInitiator] = useState(true);
 
     const [loadingState, setloadingState] = useState(true);
+    const [addCommentLoadingState, setaddCommentLoadingState] = useState(false);
     const [NoNetwork, setNoNetwork] = useState(false);
 
     const [textInputComment, settextInputComment] = useState("");
@@ -189,6 +190,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                 }
             }
             else{
+                setaddCommentLoadingState(true);
                 Axios.post(`https://coderslibraryserver.herokuapp.com/postComment`, {
                     fullName: `${profile.firstName} ${profile.lastName}`,
                     bookID: bookinfo.id, 
@@ -198,6 +200,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                         "x-access-token": resp
                     }
                 }).then((response) => {
+                    setaddCommentLoadingState(false);
                     if(response.data.status){
                         settextInputComment("")
                         setcommentInitiator(!commentInitiator)
@@ -217,6 +220,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                         }
                     }
                 }).catch((err) => {
+                    setaddCommentLoadingState(false);
                     if(Platform.OS === 'android'){
                         ToastAndroid.show("Network Error!" , ToastAndroid.SHORT)
                     }
@@ -370,9 +374,17 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                         <Text style={styles.tagsCommentsLabel}>Tags &#38; Comments</Text>
                         {account.status? (
                             <View style={styles.viewFormTC}>
-                                <TextInput editable={account.status} selectTextOnFocus={account.status} defaultValue={textInputComment} onChangeText={(e) => { settextInputComment(e) }} multiline={true} style={styles.textInputFormTC} placeholder='Write a comment or mention someone to tage them.' />
-                                <TouchableOpacity onPress={() => { postComment() }} disabled={account.status? false:true}>
-                                    <Text style={styles.textPostCommentBtn}>Post Comment</Text>
+                                <TextInput editable={account.status} selectTextOnFocus={account.status} defaultValue={textInputComment} onChangeText={(e) => { settextInputComment(e) }} multiline={true} style={styles.textInputFormTC} placeholder='Write a comment or mention someone to tag them.' />
+                                <TouchableOpacity onPress={() => { postComment() }} disabled={addCommentLoadingState}>
+                                    {addCommentLoadingState? (
+                                        <View style={styles.textPostCommentBtn}>
+                                            <Animatable.View animation="rotate" duration={1000} delay={100} iterationDelay={0} iterationCount="infinite" easing="ease-out">
+                                                <IconAntDesign name='loading1' size={20} color="white" />
+                                            </Animatable.View>
+                                        </View>
+                                    ) : (
+                                        <Text style={styles.textPostCommentBtn}>Post Comment</Text>
+                                    )}
                                 </TouchableOpacity>
                             </View>
                         ) : (
@@ -412,7 +424,21 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                                                 <View style={styles.viewUserName}>
                                                     <Text style={styles.textFullName}>{cmts.fullName}</Text><Text> | </Text><Text style={styles.textUserName}>@{cmts.userName}</Text>
                                                 </View>
-                                                <Text style={styles.textContentComment}>{cmts.content}</Text>
+                                                <View style={styles.viewContent}>
+                                                    {/* <Text style={styles.textContentComment}>{cmts.content}</Text> */}
+                                                    {cmts.content.split(" ").map((strand, j) => {
+                                                        if(cmts.mentions.indexOf(strand.slice(1)) > -1){
+                                                            return(
+                                                                <Text key={j} style={styles.textMentionDisplay}>{`${strand} `}</Text>
+                                                            )
+                                                        }
+                                                        else{
+                                                            return(
+                                                                <Text key={j}>{`${strand} `}</Text>
+                                                            )
+                                                        }
+                                                    })}
+                                                </View>
                                                 <View style={styles.viewUserName}>
                                                     <Text style={styles.textDateDisplayed}>{cmts.dateposted}</Text><Text style={styles.textDateDisplayed}> | </Text><Text style={styles.textDateDisplayed}>{cmts.timeposted}</Text>
                                                 </View>
@@ -544,7 +570,9 @@ const styles = StyleSheet.create({
         textAlign: "center",
         textAlignVertical: "center",
         borderRadius: 5,
-        marginBottom: 15
+        marginBottom: 15,
+        justifyContent: "center",
+        alignItems: "center"
     },
     viewindvComments:{
         backgroundColor: "white",
@@ -594,7 +622,24 @@ const styles = StyleSheet.create({
       },
       textLabelNoSearch:{
         fontSize: 13
-      }
+      },
+      viewContent:{
+        width: "100%",
+        marginTop: 5,
+        marginBottom: 5,
+        flex: 1,
+        flexDirection: "row",
+        flexWrap: "wrap"
+      },
+      textMentionDisplay:{
+        backgroundColor: "grey", 
+        color: "white", 
+        marginRight: 2, 
+        marginTop: 2, 
+        borderRadius: 2, 
+        paddingLeft: 2, 
+        paddingRight: 2
+    }
 });
 
 export default ViewBook
