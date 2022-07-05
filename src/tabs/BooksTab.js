@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react'
 import Axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { BOOKS_LIST } from '../redux/types/types';
+import * as Animatable from 'react-native-animatable'
+import IconAntDesign from 'react-native-vector-icons/AntDesign'
 
 const BooksTab = ({navigation}) => {
 
@@ -43,7 +45,11 @@ const BooksTab = ({navigation}) => {
       <View style={styles.viewBooksContainer}>
         <ScrollView style={styles.scrollViewStyling} contentContainerStyle={styles.scrollViewContainer}>
            {loader? (
-            <Text>Loading...</Text>
+            <Animatable.View animation="rotate" duration={1000} delay={100} iterationDelay={0} iterationCount="infinite" easing="ease-out" style={styles.viewNoSearchDisplay}>
+              <View style={styles.viewFlexedNoSearch}>
+                <IconAntDesign name='loading1' size={30} />
+              </View>
+            </Animatable.View>
            ) : (
             bookslist.map((items, i) => {
               return(
@@ -138,6 +144,18 @@ const styles = StyleSheet.create({
     },
     viewBookSizingList:{
         margin: 5
+    },
+    viewNoSearchDisplay:{
+      borderWidth: 0,
+      width: 150,
+      height: 150,
+      marginTop: 50
+    },
+    viewFlexedNoSearch:{
+      flex: 1,
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center"
     }
 })
 
