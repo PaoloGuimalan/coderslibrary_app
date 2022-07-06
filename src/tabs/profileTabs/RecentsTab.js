@@ -9,6 +9,8 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Axios from 'axios'
 import { SET_RECENTS } from '../../redux/types/types'
+import IconAntDesign from 'react-native-vector-icons/AntDesign'
+import * as Animatable from 'react-native-animatable'
 
 const { width, height } = Dimensions.get("window")
 
@@ -19,11 +21,16 @@ const RecentsTab = () => {
 
   const navigation = useNavigation()
 
+  const [loadingState, setloadingState] = useState(true);
+  const [NoNetwork, setNoNetwork] = useState(false);
+
   useEffect(() => {
     fetchRecents()
   }, [])
 
   const fetchRecents = async () => {
+    setloadingState(true);
+    setNoNetwork(false)
     await AsyncStorage.getItem('token').then((resp) => {
       Axios.get('https://coderslibraryserver.herokuapp.com/userRecentsList', {
         headers: {
@@ -32,8 +39,11 @@ const RecentsTab = () => {
       }).then((response) => {
         // console.log(response.data)
         dispatch({type: SET_RECENTS, recents: response.data})
+        setloadingState(false)
       }).catch((err) => {
         //dispatch state error
+        setloadingState(false)
+        setNoNetwork(true);
       })
     })
   }
@@ -42,28 +52,60 @@ const RecentsTab = () => {
     <View style={styles.mainView}>
       <ScrollView>
         <Text style={styles.mainLabel}>Recents</Text>
-        <View style={styles.viewRecents}>
-          <View style={styles.flexedRecents}>
-            {recents.map((book, i) => {
-              return(
-                <TouchableOpacity key={i} disabled={true}>
-                  <View style={styles.recentsIndvView}>
-                    <Image source={{uri: book.link_img}} style={styles.imgSizing} />
-                    <Text numberOfLines={2} style={styles.bookName}>{book.name}</Text>
-                    <View style={styles.viewIconsNav}>
-                      <TouchableOpacity onPress={() => {navigation.navigate("ViewBook", { url: book.link_dl, bookID: book.id })}}>
-                        <View style={styles.viewIconTouch}>
-                          <IconFeather name="book-open" size={20} />
-                          <Text style={styles.openTextBook}>Open Book</Text>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
+        {loadingState? (
+          <Animatable.View animation="rotate" duration={1000} delay={100} iterationDelay={0} iterationCount="infinite" easing="ease-out" style={styles.viewNoSearchDisplay}>
+            <View style={styles.viewFlexedNoSearch}>
+              <IconAntDesign name='loading1' size={30} />
+            </View>
+          </Animatable.View>
+        ) : (
+          NoNetwork? (
+            <View style={styles.viewNoSearchDisplay}>
+                <View style={styles.viewFlexedNoSearch}>
+                  <IconFeather name='wifi-off' size={80} />
+                  <Text style={styles.textLabelNoSearch}>No Network</Text>
+                  <TouchableOpacity onPress={() => { fetchRecents() }}>
+                    <Text style={{marginTop: 20, color: "#4a4a4a", textDecorationLine: "underline"}}>Retry</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+          ) : (
+            recents.length == 0? (
+              <View style={styles.viewNoSearchDisplay}>
+                  <View style={styles.viewFlexedNoSearch}>
+                    <IconMCI name='book-open-page-variant-outline' size={80} />
+                    <Text style={styles.textLabelNoSearch}>No Viewed Book yet.</Text>
+                    <TouchableOpacity onPress={() => { fetchRecents() }}>
+                      <Text style={{marginTop: 20, color: "#4a4a4a", textDecorationLine: "underline"}}>Reload</Text>
+                    </TouchableOpacity>
                   </View>
-                </TouchableOpacity>
-              )
-            })}
-          </View>
-        </View>
+                </View>
+            ) : (
+              <View style={styles.viewRecents}>
+              <View style={styles.flexedRecents}>
+                {recents.map((book, i) => {
+                  return(
+                    <TouchableOpacity key={i} disabled={true}>
+                      <View style={styles.recentsIndvView}>
+                        <Image source={{uri: book.link_img}} style={styles.imgSizing} />
+                        <Text numberOfLines={2} style={styles.bookName}>{book.name}</Text>
+                        <View style={styles.viewIconsNav}>
+                          <TouchableOpacity onPress={() => {navigation.navigate("ViewBook", { url: book.link_dl, bookID: book.id })}}>
+                            <View style={styles.viewIconTouch}>
+                              <IconFeather name="book-open" size={20} />
+                              <Text style={styles.openTextBook}>Open Book</Text>
+                            </View>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            </View>
+            )
+          )
+        )}
       </ScrollView>
     </View>
   )
@@ -133,6 +175,19 @@ const styles = StyleSheet.create({
     openTextBook:{
       textAlignVertical: "center",
       marginBottom: 3
+    },
+    viewNoSearchDisplay:{
+      borderWidth: 0,
+      width: 150,
+      height: 150,
+      marginTop: 50,
+      alignSelf: "center"
+    },
+    viewFlexedNoSearch:{
+      flex: 1,
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center"
     }
 })
 
