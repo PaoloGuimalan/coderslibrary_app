@@ -8,6 +8,12 @@ const TagsTab = () => {
     <View style={styles.mainView}>
       <ScrollView>
         <Text style={styles.mainLabel}>Tags &#38; Comments</Text>
+        <View style={styles.viewSections}>
+          <Text style={styles.sectionLabels}>Your Comments</Text>
+        </View>
+        <View style={styles.viewSections}>
+          <Text style={styles.sectionLabels}>Tags</Text>
+        </View>
       </ScrollView>
     </View>
   )
@@ -23,6 +29,16 @@ const styles = StyleSheet.create({
       fontSize: 20,
       margin: 10,
       fontWeight: "bold"
+    },
+    sectionLabels:{
+      fontSize: 15,
+      fontWeight: "bold",
+      marginBottom: 10
+    },
+    viewSections:{
+      width: "90%",
+      alignSelf: "center",
+      marginBottom: 10
     }
 })
 
