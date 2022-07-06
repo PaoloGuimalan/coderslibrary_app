@@ -6,14 +6,37 @@ import IconIon from 'react-native-vector-icons/Ionicons'
 import IconMCI from 'react-native-vector-icons/MaterialCommunityIcons'
 import IconEnt from 'react-native-vector-icons/Entypo'
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import Axios from 'axios'
+import { SET_RECENTS } from '../../redux/types/types'
 
 const { width, height } = Dimensions.get("window")
 
 const RecentsTab = () => {
 
   const recents = useSelector(state => state.recents);
+  const dispatch = useDispatch()
 
   const navigation = useNavigation()
+
+  useEffect(() => {
+    fetchRecents()
+  }, [])
+
+  const fetchRecents = async () => {
+    await AsyncStorage.getItem('token').then((resp) => {
+      Axios.get('https://coderslibraryserver.herokuapp.com/userRecentsList', {
+        headers: {
+          "x-access-token": resp
+        }
+      }).then((response) => {
+        // console.log(response.data)
+        dispatch({type: SET_RECENTS, recents: response.data})
+      }).catch((err) => {
+        //dispatch state error
+      })
+    })
+  }
 
   return (
     <View style={styles.mainView}>

@@ -29,7 +29,6 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
 
   useEffect(() => {
     // console.log(route)
-    fetchRecents()
     fetchProfile()
   }, [])
 
@@ -42,21 +41,6 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
       }).then((response) => {
         // console.log(response.data)
         dispatch({type: SET_PROFILE, profile: response.data})
-      }).catch((err) => {
-        //dispatch state error
-      })
-    })
-  }
-
-  const fetchRecents = async () => {
-    await AsyncStorage.getItem('token').then((resp) => {
-      Axios.get('https://coderslibraryserver.herokuapp.com/userRecentsList', {
-        headers: {
-          "x-access-token": resp
-        }
-      }).then((response) => {
-        // console.log(response.data)
-        dispatch({type: SET_RECENTS, recents: response.data})
       }).catch((err) => {
         //dispatch state error
       })
