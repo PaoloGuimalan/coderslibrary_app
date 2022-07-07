@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image } from 'react-native'
+import { View, Text, StyleSheet, Image, StatusBar } from 'react-native'
 import React, { useEffect } from 'react'
 import ImgLogo from '../resources/imgs/book_img.png'
 import * as Animatable from 'react-native-animatable'
@@ -22,6 +22,7 @@ const Splash = ({navigation}) => {
 
   return (
     <View style={styles.mainView}>
+      <StatusBar backgroundColor="white" barStyle="dark-content" />
       <Animatable.Image animation="rotate" duration={1000} delay={500} iterationDelay={500} iterationCount="infinite" easing="ease-out" source={ImgLogo} style={styles.logoSizing}/>
       <Text style={styles.textLabel}>Coder's Library</Text>
     </View>
@@ -33,7 +34,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "transparent"
+        backgroundColor: "white"
     },
     logoSizing:{
       width: 100,
