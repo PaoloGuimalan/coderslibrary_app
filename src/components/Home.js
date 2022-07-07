@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, TouchableOpacity, StatusBar } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/Octicons'
 import IconFeather from 'react-native-vector-icons/Feather'
@@ -78,6 +78,7 @@ export default function Home({navigation}) {
 
   return (
     <View style={styles.mainView}>
+      <StatusBar backgroundColor="white" barStyle="dark-content" />
         <View style={styles.viewNavBar}>
           <View style={styles.navBarFlex}>
             <View style={styles.logoFlexBar}>
@@ -156,13 +157,13 @@ const styles = StyleSheet.create({
         backgroundColor: "transparent"
     },
     viewNavBar:{
-      height: 60,
+      height: 50,
       backgroundColor: "white",
-      paddingTop: 0,
+      paddingTop:0,
       width: "100%",
       borderBottomWidth: 1,
       borderColor: "#bfbfbf",
-      elevation: 3
+      elevation: 3,
     },
     navBarFlex:{
       flex: 1,

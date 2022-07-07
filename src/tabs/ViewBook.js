@@ -472,7 +472,8 @@ const styles = StyleSheet.create({
         borderBottomColor: "#bfbfbf",
         borderBottomWidth: 0,
         width: "100%",
-        backgroundColor: "white"
+        backgroundColor: "white",
+        paddingTop: 0
     },
     navBarFlexedViewBook:{
         flex: 1,

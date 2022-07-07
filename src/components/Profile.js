@@ -172,7 +172,8 @@ const styles = StyleSheet.create({
         height: 50,
         elevation: 2,
         borderBottomWidth: 1,
-        borderBottomColor: "#bfbfbf"
+        borderBottomColor: "#bfbfbf",
+        paddingTop: 0
     },
     flexBar:{
         flex: 1,

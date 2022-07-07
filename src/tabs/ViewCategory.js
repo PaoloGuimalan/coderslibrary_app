@@ -50,7 +50,8 @@ const styles = StyleSheet.create({
   mainView:{
     backgroundColor: "white",
     flex: 1,
-    alignItems: "center"
+    alignItems: "center",
+    paddingTop: 0
   },
   categoryLabel:{
     backgroundColor: "black",
