@@ -1,4 +1,4 @@
-import { BOOKS_LIST, CATEGORIES_LIST, HOME_UPDATES, SEARCH_BOOKS, SEARCH_CATEGORIES, SET_ACCESSIBILITIES, SET_ACCOUNT, SET_BOOK_COMMENTS, SET_BOOK_INFO, SET_PROFILE, SET_RECENTS } from "../types/types";
+import { BOOKS_LIST, CATEGORIES_LIST, HOME_UPDATES, SEARCH_BOOKS, SEARCH_CATEGORIES, SET_ACCESSIBILITIES, SET_ACCOUNT, SET_ACTIVITY_COMMENTS, SET_BOOK_COMMENTS, SET_BOOK_INFO, SET_PROFILE, SET_RECENTS } from "../types/types";
 
 export const setbookslist = (state = [], action) => {
     switch(action.type){
@@ -121,5 +121,16 @@ export const setbookcomments = (state = [], action) => {
             return action.bookcomments;
         default:
             return state
+    }
+}
+
+export const activitycommentsState = {comments: [], mentionsYou: []}
+
+export const setactivitycomments = (state = activitycommentsState, action) => {
+    switch(action.type){
+        case SET_ACTIVITY_COMMENTS:
+            return action.activitycomments;
+        default:
+            return state;
     }
 }
