@@ -48,6 +48,24 @@ const TagsTab = () => {
     })
   }
 
+  const bookPointer = async (bookID) => {
+    // alert(bookID)
+    await AsyncStorage.getItem('token').then((resp) => {
+      Axios.get(`https://coderslibraryserver.herokuapp.com/getBookInfo/${bookID}/${null}`, {
+          headers: {
+              "x-access-token": resp
+          }
+      }).then((response) => {
+          //dispatch data
+          // console.log(response.data.bookInfo.link_dl)
+          navigation.navigate("ViewBook", { url: response.data.bookInfo.link_dl, bookID: response.data.bookInfo.id })
+      }).catch((err) => {
+          //alert error
+          // alert("Unable to load Recents");
+      })
+  })
+  }
+
   return (
     <View style={styles.mainView}>
       <ScrollView>
@@ -89,7 +107,8 @@ const TagsTab = () => {
                     <Text style={styles.sectionLabels}>Your Comments</Text>
                     {activitycomments.comments.map((cmts, i) => {
                       return(
-                        <View style={styles.viewindvComments} key={i}>
+                        <TouchableOpacity onPress={() => {bookPointer(cmts.bookID)}} key={i} style={{width: "100%", alignItems: "center"}}>
+                          <View style={styles.viewindvComments}>
                           <View style={styles.viewUserName}>
                             <Text style={styles.textFullName}>{cmts.fullName}</Text><Text> | </Text><Text style={styles.textUserName}>@{cmts.userName}</Text>
                           </View>
@@ -111,6 +130,7 @@ const TagsTab = () => {
                               <Text style={styles.textDateDisplayed}>{cmts.dateposted}</Text><Text style={styles.textDateDisplayed}> | </Text><Text style={styles.textDateDisplayed}>{cmts.timeposted}</Text>
                            </View>
                          </View>
+                        </TouchableOpacity>
                       )
                     })}
                   </View>
@@ -122,7 +142,8 @@ const TagsTab = () => {
                     <Text style={styles.sectionLabels}>Tags</Text>
                     {activitycomments.mentionsYou.map((cmts, i) => {
                       return(
-                        <View style={styles.viewindvComments} key={i}>
+                        <TouchableOpacity onPress={() => {bookPointer(cmts.bookID)}} key={i} style={{width: "100%", alignItems: "center"}}>
+                          <View style={styles.viewindvComments} key={i}>
                           <View style={styles.viewUserName}>
                             <Text style={styles.textFullName}>{cmts.fullName}</Text><Text> | </Text><Text style={styles.textUserName}>@{cmts.userName}</Text>
                           </View>
@@ -144,6 +165,7 @@ const TagsTab = () => {
                               <Text style={styles.textDateDisplayed}>{cmts.dateposted}</Text><Text style={styles.textDateDisplayed}> | </Text><Text style={styles.textDateDisplayed}>{cmts.timeposted}</Text>
                            </View>
                          </View>
+                        </TouchableOpacity>
                       )
                     })}
                   </View>
