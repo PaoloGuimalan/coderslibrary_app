@@ -181,12 +181,6 @@ const TagsTab = () => {
             )
           )
         )}
-        {/* <View style={styles.viewSections}>
-          <Text style={styles.sectionLabels}>Your Comments</Text>
-        </View>
-        <View style={styles.viewSections}>
-          <Text style={styles.sectionLabels}>Tags</Text>
-        </View> */}
       </ScrollView>
     </View>
   )

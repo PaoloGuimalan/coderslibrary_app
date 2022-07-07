@@ -127,7 +127,7 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { navigate("SavesTab") }}>
               <View style={styles.indivCountDetails}>
-                <IconIon name='heart' size={27} />
+                <IconIon name='heart-outline' size={27} />
                 <Text style={styles.textCountsDetails}>Saves</Text>
               </View>
             </TouchableOpacity>
