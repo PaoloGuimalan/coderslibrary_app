@@ -26,6 +26,12 @@ const RecentsTab = () => {
 
   useEffect(() => {
     fetchRecents()
+
+    return () => {
+      setloadingState(true);
+      setNoNetwork(false)
+      dispatch({type: SET_RECENTS, recents: []})
+    }
   }, [])
 
   const fetchRecents = async () => {

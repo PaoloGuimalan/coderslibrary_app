@@ -26,6 +26,9 @@ const SearchTab = ({navigation}) => {
       dispatch({type: SEARCH_BOOKS, searchbookslist: []})
       dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: []})
       setsearchinitialized(false);
+      setNoNetwork(false)
+      setloadingState(false)
+      setsearchinitialized(false)
     }
   }, [])
 
@@ -65,6 +68,9 @@ const SearchTab = ({navigation}) => {
       dispatch({type: SEARCH_BOOKS, searchbookslist: []})
       dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: []})
       setsearchinitialized(false);
+      setNoNetwork(false)
+      setloadingState(false)
+      setsearchinitialized(false)
     }
 
   }

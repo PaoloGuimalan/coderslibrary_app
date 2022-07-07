@@ -11,6 +11,7 @@ import IconMCI from 'react-native-vector-icons/MaterialCommunityIcons'
 import IconEnt from 'react-native-vector-icons/Entypo'
 import IconAntDesign from 'react-native-vector-icons/AntDesign'
 import { useNavigation } from '@react-navigation/native';
+import { activitycommentsState } from '../../redux/actions/actions';
 
 const { width, height } = Dimensions.get("window")
 
@@ -26,6 +27,12 @@ const TagsTab = () => {
 
   useEffect(() => {
     getActivityComments()
+
+    return () => {
+      setloadingState(true);
+      setNoNetwork(false)
+      dispatch({type: SET_ACTIVITY_COMMENTS, activitycomments: activitycommentsState})
+    }
   },[])
 
   const getActivityComments = async () => {

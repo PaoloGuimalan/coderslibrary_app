@@ -21,6 +21,7 @@ const BooksTab = ({navigation}) => {
     return () => { 
       dispatch({type: BOOKS_LIST, bookslist: []}) 
       setloader(true);
+      setNoNetwork(false)
     }
   }, [])
 
@@ -42,6 +43,7 @@ const BooksTab = ({navigation}) => {
     return () => { 
       dispatch({type: BOOKS_LIST, bookslist: []}) 
       setloader(true);
+      setNoNetwork(false)
     }
   }
 

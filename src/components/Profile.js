@@ -16,6 +16,7 @@ import DownloadsTab from '../tabs/profileTabs/DownloadsTab'
 import InfosTab from '../tabs/profileTabs/InfosTab'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native'
+import { dataProfile } from '../redux/actions/actions'
 
 const { width, height } = Dimensions.get("window");
 
@@ -30,6 +31,10 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
   useEffect(() => {
     // console.log(route)
     fetchProfile()
+
+    return () => {
+      dispatch({type: SET_PROFILE, profile: dataProfile})
+    }
   }, [])
 
   const fetchProfile = async () => {
