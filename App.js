@@ -42,6 +42,7 @@ import store from './src/redux/store/store';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Axios from 'axios'
+import ViewBookOffline from './src/tabs/ViewBookOffline';
 
 const MainStack = createNativeStackNavigator();
 
@@ -106,6 +107,7 @@ const App: () => Node = () => {
             <MainStack.Screen name='Login' component={Login} options={{headerShown: false}} />
             <MainStack.Screen name='Register' component={Register} options={{headerShown: false}} />
             <MainStack.Screen name='Profile' component={Profile} options={{headerShown: false}} />
+            <MainStack.Screen name='ViewBookOffline' component={ViewBookOffline} options={{headerShown: false}} />
           </MainStack.Navigator>
         </NavigationContainer>
       </Provider>

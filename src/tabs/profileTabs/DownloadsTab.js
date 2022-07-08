@@ -16,7 +16,7 @@ const db = openDatabase({
 
 const { width, height } = Dimensions.get("window")
 
-const DownloadsTab = () => {
+const DownloadsTab = ({navigation}) => {
 
   const downloadslist = useSelector(state => state.downloadslist);
   const dispatch = useDispatch()
@@ -88,7 +88,7 @@ const DownloadsTab = () => {
                     <Image source={{uri: `file://${items.bookImg}`}} style={styles.imgSizing} />
                     <Text numberOfLines={2} style={styles.bookName}>{items.bookName}</Text>
                     <View style={styles.viewIconsNav}>
-                      <TouchableOpacity>
+                      <TouchableOpacity onPress={() => { navigation.navigate("ViewBookOffline", { url: items.bookPath, bookID: items.bookID }) }}>
                         <View style={styles.viewIconTouch}>
                           <IconFeather name="book-open" size={20} />
                           <Text style={styles.openTextBook}>Open Book</Text>
