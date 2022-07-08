@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image, ToastAndroid, Platform, Alert, Linking, TextInput } from 'react-native'
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image, ToastAndroid, Platform, Alert, Linking, TextInput, NativeModules, LogBox } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Pdf from 'react-native-pdf'
 import Axios from 'axios'
@@ -8,13 +8,21 @@ import IconMCI from 'react-native-vector-icons/MaterialCommunityIcons'
 import IconEnt from 'react-native-vector-icons/Entypo'
 import IconFeather from 'react-native-vector-icons/Feather'
 import IconOcti from 'react-native-vector-icons/Octicons'
+import IconM from 'react-native-vector-icons/MaterialIcons'
 import { useSelector, useDispatch } from 'react-redux'
 import { SET_BOOK_COMMENTS, SET_BOOK_INFO } from '../redux/types/types'
 import { bookinfodata } from '../redux/actions/actions'
 import ClipBoard from '@react-native-clipboard/clipboard'
 import * as Animatable from 'react-native-animatable'
 import IconAntDesign from 'react-native-vector-icons/AntDesign'
+import { openDatabase } from 'react-native-sqlite-storage'
+import RNFetchBlob from 'rn-fetch-blob/index'
 
+// const RNFetchBlob = NativeModules.RNFetchBlob
+
+const db = openDatabase({
+    name: "coderslibrary_db"
+})
 
 const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const source = { uri: route.params.url, cache: true };
@@ -36,11 +44,24 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
 
     const [textInputComment, settextInputComment] = useState("");
 
+    const [noPages, setnoPages] = useState("");
+    const [downloaded, setdownloaded] = useState(false);
+    const [downloadWindow, setdownloadWindow] = useState(false);
+    const [downloadLabel, setdownloadLabel] = useState("Downloading");
+    const [imgProgress, setimgProgress] = useState(0);
+    const [pdfProgress, setpdfProgress] = useState(0);
+
     const bookinfo = useSelector(state => state.bookinfo);
     const account = useSelector(state => state.account);
     const profile = useSelector(state => state.profile);
     const bookcomments = useSelector(state => state.bookcomments)
     const dispatch = useDispatch();
+
+    LogBox.ignoreLogs([
+        'Remote debugger is in a background tab which may cause apps to perform slowly',
+        'Require cycle: node_modules/rn-fetch-blob/index.js',
+        'Require cycle: node_modules/react-native/Libraries/Network/fetch.js'
+    ]);
 
     useEffect(() => {
         // console.log(route.params.bookID)
@@ -49,6 +70,15 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
 
         return () => { dispatch({type: SET_BOOK_INFO, bookinfo: bookinfodata}) }
     }, [])
+
+    useEffect(() => {
+        fetchBookData()
+
+        return () => {
+            setdownloaded(false)
+            setdownloadWindow(false)
+        }
+    }, [bookinfo.id])
 
     const recentAdderPost = async () => {
         if(account.status){
@@ -123,8 +153,140 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
         })
     }
 
+    const donwloadBookProceed = () => {
+        setdownloadWindow(true)
+        // alert("Hello")
+        let dirs = RNFetchBlob.fs.dirs
+        // console.log(dirs.DCIMDir)
+        RNFetchBlob.config({
+            fileCache : true,
+            appendExt : 'png'
+        }).fetch("GET", bookinfo.link_img).progress((received, total) => {
+            // console.log("Image Progress", Math.floor(received / total * 100))
+            setimgProgress(Math.floor(received / total * 100))
+        }).then((res) => {
+            // console.log(res.path())
+            var imgPath = res.path()
+            setimgProgress(100)
+
+            RNFetchBlob.config({
+                fileCache: true,
+                appendExt: "pdf"
+            }).fetch("GET", bookinfo.link_dl).progress((received2, total2) => {
+                // console.log("PDF Progress", Math.floor(received2 / total2 * 100));
+                setpdfProgress(Math.floor(received2 / total2 * 100))
+            }).then((res2) => {
+                setpdfProgress(100)
+                var pdfPath = res2.path()
+                // console.log({imgPath, pdfPath})
+                setdownloadLabel("Success")
+                insertBook(pdfPath, imgPath)
+            }).catch((err2) => {
+                console.log(err2)
+            })
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+
     const donwloadBook = () => {
-        alert("Coming Soon!")
+        // alert("Coming Soon!")
+        if(bookinfo.id != "..." && bookinfo.id != null){
+            db.transaction(txn => {
+                txn.executeSql(`SELECT * FROM books WHERE bookID = ?`, [bookinfo.id],
+                (sqlTxn, res) => {
+                    // console.log(res)
+                    if(res.rows.length == 0){
+                        // insertBook()
+                        donwloadBookProceed()
+                    }
+                    else{
+                        if(Platform.OS === 'android'){
+                            ToastAndroid.show("Book already Downloaded!", ToastAndroid.SHORT)
+                        }
+                        else{
+                            alert("Book already Downloaded!")
+                        }
+                        // fetchBookData()
+                    }
+                },
+                (error) => {
+                    if(Platform.OS === 'android'){
+                        ToastAndroid.show(error.message, ToastAndroid.SHORT)
+                      }
+                      else{
+                          alert(error.message)
+                      }
+                })
+            })
+        }
+    }
+
+    const insertBook = (bookPath, bookImg) => {
+        db.transaction(txn => {
+          txn.executeSql(`INSERT INTO books (bookID, bookName, bookPublisher, bookAuthor, bookPath, bookImg) VALUES (?,?,?,?,?,?)`,[bookinfo.id, bookinfo.name, bookinfo.publisher, bookinfo.author, bookPath, bookImg],
+          (sqlTxn, res) => {
+            // getBooksDB()
+            // console.log(res)
+            if(res.rowsAffected > 0){
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show("Book has been Downloaded!", ToastAndroid.SHORT)
+                  }
+                  else{
+                      alert("Book has been Downloaded!")
+                  }
+                  setTimeout(() => {
+                    setdownloadWindow(false);
+                    setimgProgress(0);
+                    setpdfProgress(0);
+                    setdownloadLabel("Downloading");
+                    setdownloaded(true);
+                  }, 2000)
+            }
+            else{
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show("Book already Downloaded!", ToastAndroid.SHORT)
+                }
+                else{
+                    alert("Book already Downloaded!")
+                }
+            }
+          },
+          (error) => {
+            console.log("error on creating table " + error.message);
+              if(Platform.OS === 'android'){
+                ToastAndroid.show("Error Initializing Database!", ToastAndroid.SHORT)
+              }
+              else{
+                  alert("Error Initializing Database!")
+              }
+          })
+        })
+      }
+
+    const fetchBookData = () => {
+        if(bookinfo.id != "..." && bookinfo.id != null){
+            db.transaction(txn => {
+                txn.executeSql(`SELECT * FROM books WHERE bookID = ?`,[bookinfo.id],
+                (sqlTxn, res) => {
+                    // console.log(res.rows.item(0).bookID)
+                    if(res.rows.length == 1){
+                        setdownloaded(true);
+                        // console.log({
+                        //     bookID: res.rows.item(0).bookID,
+                        //     bookName: res.rows.item(0).bookName, 
+                        //     bookPublisher: res.rows.item(0).bookPublisher, 
+                        //     bookAuthor: res.rows.item(0).bookAuthor, 
+                        //     bookPath: res.rows.item(0).bookPath, 
+                        //     bookImg: res.rows.item(0).bookImg
+                        // })
+                    }
+                },
+                (error) => {
+                    console.log(error.message)
+                })
+            })
+        }
     }
 
     const copyLink = () => {
@@ -256,6 +418,24 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
 
     return (
         <View style={styles.container}>
+            {downloadWindow? (
+                <View style={styles.viewDownload}>
+                    <View style={styles.viewDownloadDisplay}>
+                        <Text style={styles.labelDownloadDisplay}>{bookinfo.name}</Text>
+                        <Text style={{fontSize: 13, marginBottom: 10, color: downloadLabel == "Downloading"? "orange" : "lime"}}>{downloadLabel}</Text>
+                        <Text style={styles.labelProgressBar}>Book Information Progress</Text>
+                        <View style={styles.progressBar}>
+                            <View style={{height: "100%", width: `${imgProgress}%`, backgroundColor: "limegreen", borderRadius: 15}}></View>
+                        </View>
+                        <Text style={styles.labelProgressBar}>PDF Progress</Text>
+                        <View style={styles.progressBar}>
+                            <View style={{height: "100%", width: `${pdfProgress}%`, backgroundColor: "limegreen", borderRadius: 15}}></View>
+                        </View>
+                    </View>
+                </View>
+            ) : (
+                <View></View>
+            )}
             <View style={styles.navBarViewBook}>
                 <View style={styles.navBarFlexedViewBook}>
                     <TouchableOpacity onPress={() => { goBack() }}>
@@ -299,9 +479,15 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                                         </TouchableOpacity>
                                     )}
                                     <TouchableOpacity onPress={() => { donwloadBook() }}>
-                                        <View style={styles.indivCountDetails}>
-                                            <IconFeather name='download' size={20} />
-                                        </View>
+                                        {downloaded? (
+                                            <View style={styles.indivCountDetails}>
+                                                <IconM name='file-download-done' size={23} color="limegreen" />
+                                            </View>
+                                        ) : (
+                                            <View style={styles.indivCountDetails}>
+                                                <IconFeather name='download' size={20} />
+                                            </View>
+                                        )}
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => { copyLink() }}>
                                         <View style={styles.indivCountDetails}>
@@ -355,6 +541,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                 <Pdf
                 source={source}
                 onLoadComplete={(numberOfPages,filePath) => {
+                    setnoPages(numberOfPages)
                     // console.log(`Number of pages: ${numberOfPages} | ${filePath}`);
                 }}
                 onPageChanged={(page,numberOfPages) => {
@@ -640,6 +827,49 @@ const styles = StyleSheet.create({
         borderRadius: 2, 
         paddingLeft: 2, 
         paddingRight: 2
+    },
+    viewDownload:{
+        backgroundColor: "white",
+        width: "100%",
+        position: "absolute",
+        zIndex: 1,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: "center",
+        alignItems: 'center',
+        opacity: 0.8
+    },
+    viewDownloadDisplay:{
+        backgroundColor: "black",
+        width: "90%",
+        maxWidth: 300,
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: 5,
+        paddingBottom: 20
+    },
+    labelDownloadDisplay:{
+        marginTop: 10,
+        marginBottom: 0,
+        fontSize: 15,
+        fontWeight: "bold",
+        color: "white"
+    },
+    progressBar:{
+        height: 15,
+        backgroundColor: "white",
+        width: "90%",
+        marginBottom: 10,
+        borderRadius: 15
+    },
+    labelProgressBar:{
+        width: "90%",
+        fontSize: 13,
+        marginBottom: 5,
+        marginLeft: 20,
+        color: "white"
     }
 });
 

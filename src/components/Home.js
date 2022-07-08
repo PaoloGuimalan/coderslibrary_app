@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, TouchableOpacity, StatusBar } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, TouchableOpacity, StatusBar, Platform, ToastAndroid } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/Octicons'
 import IconFeather from 'react-native-vector-icons/Feather'
@@ -15,8 +15,13 @@ import ImgLogo from '../resources/imgs/book_img.png'
 import SearchTab from '../tabs/SearchTab'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { dataProfile } from '../redux/actions/actions'
+import { openDatabase } from 'react-native-sqlite-storage'
 
 const Tab = createNativeStackNavigator()
+
+const db = openDatabase({
+  name: "coderslibrary_db"
+})
 
 export default function Home({navigation}) {
 
@@ -25,6 +30,138 @@ export default function Home({navigation}) {
   const account = useSelector(state => state.account);
   const accessibilities = useSelector(state => state.accessibilities);
   const dispatch = useDispatch()
+
+  useEffect(() => {
+    checkTables()
+    // dropTable()
+    // deleteAll()
+  },[])
+
+  const deleteAll = () => {
+    db.transaction(txn => {
+      txn.executeSql(`DELETE FROM books`,[],
+      (sqlTxn, res) => {
+        if(res.rowsAffected > 0){
+          if(Platform.OS === 'android'){
+            ToastAndroid.show("Table cleared!", ToastAndroid.SHORT)
+          }
+          else{
+              alert("Table cleared!")
+          }
+        }
+      },
+      (error) => {
+        if(Platform.OS === 'android'){
+          ToastAndroid.show("Error clearing Table!", ToastAndroid.SHORT)
+        }
+        else{
+            alert("Error clearing Table!")
+        }
+      })
+    })
+  }
+
+  const dropTable = () => {
+    db.transaction(txn => {
+      txn.executeSql(`DROP TABLE books; DROP TABLE bookprevious`,[],
+      (sqlTxn, res) => {
+        console.log("OK")
+      },
+      (error) => {
+        console.log("error on creating table " + error.message);
+          if(Platform.OS === 'android'){
+            ToastAndroid.show("Error Initializing Database!", ToastAndroid.SHORT)
+          }
+          else{
+              alert("Error Initializing Database!")
+          }
+      })
+    })
+  }
+
+  const insertBook = () => {
+    db.transaction(txn => {
+      txn.executeSql(`INSERT INTO books (bookID, bookName, bookPublisher, bookAuthor, bookPath, bookImg) VALUES (?,?,?,?,?,?)`,["22", "Testing", "MePub", "MeAuth", "file", "img"],
+      (sqlTxn, res) => {
+        // getBooksDB()
+      },
+      (error) => {
+        console.log("error on creating table " + error.message);
+          if(Platform.OS === 'android'){
+            ToastAndroid.show("Error Initializing Database!", ToastAndroid.SHORT)
+          }
+          else{
+              alert("Error Initializing Database!")
+          }
+      })
+    })
+  }
+
+  const getBooksDB = () => {
+    db.transaction(txn => {
+      txn.executeSql(`SELECT * FROM books`,[],
+      (sqlTxn, res) => {
+        console.log(res.rows.item(0).bookName)
+      },
+      (error) => {
+        console.log("error on creating table " + error.message);
+          if(Platform.OS === 'android'){
+            ToastAndroid.show("Error Initializing Database!", ToastAndroid.SHORT)
+          }
+          else{
+              alert("Error Initializing Database!")
+          }
+      })
+    })
+  }
+
+  const checkTables = () => {
+    db.transaction(txn => {
+      txn.executeSql(`SELECT DISTINCT tbl_name FROM sqlite_master where tbl_name='books'`,[], (sqlTxn, res) => {
+        // console.log(res.rows.length)
+        if(res.rows.length == 0){
+          createTables()
+        }
+      },
+      (error) => {
+          console.log("error on creating table " + error.message);
+          if(Platform.OS === 'android'){
+            ToastAndroid.show("Error Initializing Database!", ToastAndroid.SHORT)
+          }
+          else{
+              alert("Error Initializing Database!")
+          }
+      })
+    })
+  }
+
+  const createTables = () => {
+    db.transaction(txn => {
+      txn.executeSql(
+        `CREATE TABLE IF NOT EXISTS books (id INTEGER PRIMARY KEY AUTOINCREMENT, bookID VARCHAR(20), bookName TEXT, bookPublisher TEXT, bookAuthor TEXT, bookPath TEXT, bookImg TEXT);
+        CREATE TABLE IF NOT EXISTS bookprevious (id INTEGER PRIMARY KEY AUTOINCREMENT, bookID VARCHAR(20), bookRecentPage VARCHAR(20));`,
+        [],
+        (sqlTxn, res) => {
+          // console.log("table created successfully");
+          if(Platform.OS === 'android'){
+            ToastAndroid.show("Database Initialized", ToastAndroid.SHORT)
+          }
+          else{
+              alert("Database Initialized")
+          }
+        },
+        error => {
+          console.log("error on creating table " + error.message);
+          if(Platform.OS === 'android'){
+            ToastAndroid.show("Error Initializing Database!", ToastAndroid.SHORT)
+          }
+          else{
+              alert("Error Initializing Database!")
+          }
+        },
+      );
+    });
+  };
 
   const storageAccountCheck = async () => {
     await AsyncStorage.getItem('token').then((resp) => {

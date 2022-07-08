@@ -16,6 +16,7 @@ import {
   Text,
   useColorScheme,
   View,
+  LogBox
 } from 'react-native';
 
 import {
@@ -43,6 +44,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Axios from 'axios'
 
 const MainStack = createNativeStackNavigator();
+
+LogBox.ignoreLogs([
+  'Remote debugger is in a background tab which may cause apps to perform slowly',
+  'Require cycle: node_modules/rn-fetch-blob/index.js',
+  'Require cycle: node_modules/react-native/Libraries/Network/fetch.js'
+]);
+
+LogBox.ignoreAllLogs()
 
 const Section = ({children, title}): Node => {
   const isDarkMode = useColorScheme() === 'dark';
