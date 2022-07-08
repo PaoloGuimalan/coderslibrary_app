@@ -16,6 +16,8 @@ import SearchTab from '../tabs/SearchTab'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { dataProfile } from '../redux/actions/actions'
 import { openDatabase } from 'react-native-sqlite-storage'
+import DownloadsTab from '../tabs/profileTabs/DownloadsTab'
+import DownloadsMain from '../tabs/DownloadsMain'
 
 const Tab = createNativeStackNavigator()
 
@@ -253,6 +255,7 @@ export default function Home({navigation}) {
               <Tab.Screen name="HomeTab" component={HomeTab} options={{headerShown: false}} />
               <Tab.Screen name="SearchTab" component={SearchTab} options={{headerShown: false}} />
               <Tab.Screen name="BooksTab" component={BooksTab} options={{headerShown: false}} />
+              <Tab.Screen name="DownloadsMain" component={DownloadsMain} options={{headerShown: false}} />
             </Tab.Navigator>
         </View>
         <View style={styles.viewNav}>
@@ -271,7 +274,7 @@ export default function Home({navigation}) {
              <Icon name='book' size={25} color="grey" style={styles.iconsStyling} />
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => {navigation.navigate("DownloadsMain")}}>
             <View style={styles.viewButtonMain}>
               <Icon name='bookmark' size={25} color="grey" style={styles.iconsStyling} />
             </View>

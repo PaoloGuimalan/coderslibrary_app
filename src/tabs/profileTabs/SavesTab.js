@@ -201,7 +201,8 @@ bookName:{
   alignSelf: "center",
   marginTop: 5,
   borderBottomWidth: 1,
-  borderColor: "grey"
+  borderColor: "grey",
+  height: 40
 },
 viewIconsNav:{
   flex: 1,

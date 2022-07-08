@@ -449,7 +449,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
             {downloadWindow? (
                 <View style={styles.viewDownload}>
                     <View style={styles.viewDownloadDisplay}>
-                        <Text style={styles.labelDownloadDisplay}>{bookinfo.name}</Text>
+                        <Text style={styles.labelDownloadDisplay} numberOfLines={1}>{bookinfo.name}</Text>
                         <Text style={{fontSize: 13, marginBottom: 10, color: downloadLabel == "Downloading"? "orange" : "lime"}}>{downloadLabel}</Text>
                         <Text style={styles.labelProgressBar}>Book Information Progress</Text>
                         <View style={styles.progressBar}>
@@ -483,7 +483,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                             <IconIon name='ios-chevron-back-outline' size={25} />
                         </View>
                     </TouchableOpacity>
-                    <Text numberOfLines={1} style={{fontWeight: "bold"}}>{bookinfo.name}</Text>
+                    <Text numberOfLines={1} style={{fontWeight: "bold", maxWidth: 270}}>{bookinfo.name}</Text>
                     <TouchableOpacity onPress={() => { setdropInfoView(!dropInfoView) }}>
                         <View style={styles.viewBackButton}>
                             <IconIon name={dropInfoView? 'close' : 'ios-menu'} size={25} />
