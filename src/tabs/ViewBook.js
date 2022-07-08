@@ -50,6 +50,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const [downloadLabel, setdownloadLabel] = useState("Downloading");
     const [imgProgress, setimgProgress] = useState(0);
     const [pdfProgress, setpdfProgress] = useState(0);
+    const [offlineModePrompt, setofflineModePrompt] = useState(false);
 
     const bookinfo = useSelector(state => state.bookinfo);
     const account = useSelector(state => state.account);
@@ -77,6 +78,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
         return () => {
             setdownloaded(false)
             setdownloadWindow(false)
+            setofflineModePrompt(false);
         }
     }, [bookinfo.id])
 
@@ -182,10 +184,34 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                 setdownloadLabel("Success")
                 insertBook(pdfPath, imgPath)
             }).catch((err2) => {
-                console.log(err2)
+                // console.log(err2)
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show("Download Failed! Check Network / Connection", ToastAndroid.SHORT)
+                }
+                else{
+                    alert("Download Failed! Check Network / Connection")
+                }
+                setTimeout(() => {
+                    setdownloadWindow(false);
+                    setimgProgress(0);
+                    setpdfProgress(0);
+                    setdownloadLabel("Downloading");
+                  }, 2000)
             })
         }).catch((err) => {
-            console.log(err);
+            // console.log(err);
+            if(Platform.OS === 'android'){
+                ToastAndroid.show("Download Failed! Check Network / Connection", ToastAndroid.SHORT)
+            }
+            else{
+                alert("Download Failed! Check Network / Connection")
+            }
+            setTimeout(() => {
+                setdownloadWindow(false);
+                setimgProgress(0);
+                setpdfProgress(0);
+                setdownloadLabel("Downloading");
+              }, 2000)
         })
     }
 
@@ -241,6 +267,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                     setpdfProgress(0);
                     setdownloadLabel("Downloading");
                     setdownloaded(true);
+                    setofflineModePrompt(true);
                   }, 2000)
             }
             else{
@@ -272,6 +299,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                     // console.log(res.rows.item(0).bookID)
                     if(res.rows.length == 1){
                         setdownloaded(true);
+                        setofflineModePrompt(true)
                         // console.log({
                         //     bookID: res.rows.item(0).bookID,
                         //     bookName: res.rows.item(0).bookName, 
@@ -431,6 +459,18 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                         <View style={styles.progressBar}>
                             <View style={{height: "100%", width: `${pdfProgress}%`, backgroundColor: "limegreen", borderRadius: 15}}></View>
                         </View>
+                    </View>
+                </View>
+            ) : (
+                <View></View>
+            )}
+            {offlineModePrompt? (
+                <View style={styles.viewOfflinePrompt}>
+                    <View style={{flex: 1, flexDirection: "row", justifyContent: 'center', alignItems: "center"}}>
+                        <Text style={styles.textOfflinePrompt}>This book is available offline. </Text>
+                        <TouchableOpacity>
+                            <Text style={{color: "white", textDecorationLine: 'underline'}}>Proceed</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             ) : (
@@ -870,6 +910,24 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         marginLeft: 20,
         color: "white"
+    },
+    viewOfflinePrompt:{
+        position: "absolute", 
+        zIndex: 1, 
+        backgroundColor: "orange", 
+        bottom: 20, 
+        width: "90%", 
+        maxWidth: 300,
+        height: 40,
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center",
+        borderWidth: 1,
+        borderColor: "white"
+    },
+    textOfflinePrompt:{
+        color: "white",
+        fontSize: 15
     }
 });
 
