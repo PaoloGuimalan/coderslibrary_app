@@ -444,6 +444,29 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
         })
     }
 
+    const goOffline = () => {
+        if(bookinfo.id != "..." && bookinfo.id != null){
+            db.transaction(txn => {
+                txn.executeSql(`SELECT * FROM books WHERE bookID = ?`,[bookinfo.id],
+                (sqlTxn, res) => {
+                    // console.log(res.rows.item(0).bookID)
+                    if(res.rows.length == 1){
+                        navigate("ViewBookOffline", { url: res.rows.item(0).bookPath, bookID: res.rows.item(0).bookID })
+                    }
+                },
+                (error) => {
+                    // console.log(error.message)
+                    if(Platform.OS === 'android'){
+                        ToastAndroid.show("Offline Mode Unavailable", ToastAndroid.SHORT)
+                    }
+                    else{
+                        alert("Offline Mode Unavailable")
+                    }
+                })
+            })
+        }
+    }
+
     return (
         <View style={styles.container}>
             {downloadWindow? (
@@ -468,8 +491,8 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                 <View style={styles.viewOfflinePrompt}>
                     <View style={{flex: 1, flexDirection: "row", justifyContent: 'center', alignItems: "center"}}>
                         <Text style={styles.textOfflinePrompt}>This book is available offline. </Text>
-                        <TouchableOpacity>
-                            <Text style={{color: "white", textDecorationLine: 'underline'}}>Proceed</Text>
+                        <TouchableOpacity onPress={() => { goOffline() }}>
+                            <Text style={{color: "white", textDecorationLine: 'underline'}}>Proceed Offline.</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

@@ -30,9 +30,11 @@ const ViewBookOffline = ({route, navigation: { goBack, navigate }}) => {
   const dispatch = useDispatch()
 
   const bookID = route.params.bookID;
+  const account = useSelector(state => state.account);
 
   const [dropInfoView, setdropInfoView] = useState(true);
   const [noPages, setnoPages] = useState("");
+  const [loaderButton, setloaderButton] = useState(false);
 
   useEffect(() => {
     fetchBookData()
@@ -66,9 +68,32 @@ const ViewBookOffline = ({route, navigation: { goBack, navigate }}) => {
     }
 }
 
-const gotoOnline = () => {
+const gotoOnline = async () => {
   // navigation.navigate("ViewBook", { url: items.link_dl, bookID: items.id })
-  alert("Online")
+//   alert("Online")
+    setloaderButton(true)
+    await AsyncStorage.getItem('token').then((resp) => {
+        Axios.get(`https://coderslibraryserver.herokuapp.com/getBookInfo/${route.params.bookID}/${account.status? account.userName : null}`, {
+            headers: {
+                "x-access-token": resp
+            }
+        }).then((response) => {
+            //dispatch data
+            // console.log(response.data.bookInfo)
+            setloaderButton(false)
+            navigate("ViewBook", { url: response.data.bookInfo.link_dl, bookID: response.data.bookInfo.id })
+        }).catch((err) => {
+            //alert error
+            // alert("Unable to load Recents");
+            setloaderButton(false)
+            if(Platform.OS === 'android'){
+                ToastAndroid.show("Cannot go Online!", ToastAndroid.SHORT)
+            }
+            else{
+                alert("Cannot go Online!")
+            }
+        })
+    })
 }
 
   return (
@@ -104,12 +129,20 @@ const gotoOnline = () => {
                         </View>
                         <Text style={styles.textBookInfo}>Publisher: {bookinfooffline.bookPublisher}</Text>
                         <Text style={styles.textBookInfo} numberOfLines={2}>Author/s: {bookinfooffline.bookAuthor}</Text>
-                        <TouchableOpacity onPress={() => { gotoOnline() }}>
+                        <TouchableOpacity disabled={loaderButton} onPress={() => { gotoOnline() }}>
                             <View style={styles.viewTagComments}>
-                              <View style={styles.flexedTagComments}>
-                                <Text style={{marginLeft: 5}}>Go Online</Text>
-                                <IconIon name='ios-chevron-forward-outline' size={23} />
-                              </View>
+                              {loaderButton? (
+                                <View style={styles.flexedTagComments}>
+                                    <Animatable.View style={{backgroundColor: "transparent", width: "100%", alignItems: 'center'}} animation="rotate" duration={1000} delay={100} iterationDelay={0} iterationCount="infinite" easing="ease-out">
+                                        <IconAntDesign name='loading1' size={15} color="black" />
+                                    </Animatable.View>
+                                </View>
+                              ) : (
+                                <View style={styles.flexedTagComments}>
+                                    <Text style={{marginLeft: 5}}>Go Online</Text>
+                                    <IconIon name='ios-chevron-forward-outline' size={23} />
+                                </View>
+                              )}
                             </View>
                         </TouchableOpacity>
                     </View>
