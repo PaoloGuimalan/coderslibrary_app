@@ -35,6 +35,7 @@ export default function Home({navigation}) {
 
   useEffect(() => {
     checkTables()
+    // createTablesBookPrevious()
     // dropTable()
     // deleteAll()
   },[])
@@ -123,6 +124,7 @@ export default function Home({navigation}) {
         // console.log(res.rows.length)
         if(res.rows.length == 0){
           createTables()
+          createTablesBookPrevious()
         }
       },
       (error) => {
@@ -140,8 +142,34 @@ export default function Home({navigation}) {
   const createTables = () => {
     db.transaction(txn => {
       txn.executeSql(
-        `CREATE TABLE IF NOT EXISTS books (id INTEGER PRIMARY KEY AUTOINCREMENT, bookID VARCHAR(20), bookName TEXT, bookPublisher TEXT, bookAuthor TEXT, bookPath TEXT, bookImg TEXT);
-        CREATE TABLE IF NOT EXISTS bookprevious (id INTEGER PRIMARY KEY AUTOINCREMENT, bookID VARCHAR(20), bookRecentPage VARCHAR(20));`,
+        `CREATE TABLE IF NOT EXISTS books (id INTEGER PRIMARY KEY AUTOINCREMENT, bookID VARCHAR(20), bookName TEXT, bookPublisher TEXT, bookAuthor TEXT, bookPath TEXT, bookImg TEXT)`,
+        [],
+        (sqlTxn, res) => {
+          // console.log("table created successfully");
+          if(Platform.OS === 'android'){
+            ToastAndroid.show("Database Initialized", ToastAndroid.SHORT)
+          }
+          else{
+              alert("Database Initialized")
+          }
+        },
+        error => {
+          console.log("error on creating table " + error.message);
+          if(Platform.OS === 'android'){
+            ToastAndroid.show("Error Initializing Database!", ToastAndroid.SHORT)
+          }
+          else{
+              alert("Error Initializing Database!")
+          }
+        },
+      );
+    });
+  };
+
+  const createTablesBookPrevious = () => {
+    db.transaction(txn => {
+      txn.executeSql(
+        `CREATE TABLE IF NOT EXISTS bookprevious (id INTEGER PRIMARY KEY AUTOINCREMENT, bookID VARCHAR(20), bookRecentPage VARCHAR(20));`,
         [],
         (sqlTxn, res) => {
           // console.log("table created successfully");

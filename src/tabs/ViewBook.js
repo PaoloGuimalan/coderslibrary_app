@@ -10,13 +10,14 @@ import IconFeather from 'react-native-vector-icons/Feather'
 import IconOcti from 'react-native-vector-icons/Octicons'
 import IconM from 'react-native-vector-icons/MaterialIcons'
 import { useSelector, useDispatch } from 'react-redux'
-import { SET_BOOK_COMMENTS, SET_BOOK_INFO } from '../redux/types/types'
+import { SET_BOOKPAGE_RECORD, SET_BOOK_COMMENTS, SET_BOOK_INFO } from '../redux/types/types'
 import { bookinfodata } from '../redux/actions/actions'
 import ClipBoard from '@react-native-clipboard/clipboard'
 import * as Animatable from 'react-native-animatable'
 import IconAntDesign from 'react-native-vector-icons/AntDesign'
 import { openDatabase } from 'react-native-sqlite-storage'
 import RNFetchBlob from 'rn-fetch-blob/index'
+import startTransition from '../libraries/startTransitionHook'
 
 // const RNFetchBlob = NativeModules.RNFetchBlob
 
@@ -41,6 +42,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const [loadingState, setloadingState] = useState(true);
     const [addCommentLoadingState, setaddCommentLoadingState] = useState(false);
     const [NoNetwork, setNoNetwork] = useState(false);
+    const [bookmarksWindow, setbookmarksWindow] = useState(false);
 
     const [textInputComment, settextInputComment] = useState("");
 
@@ -53,6 +55,8 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const [pdfProgress, setpdfProgress] = useState(0);
     const [offlineModePrompt, setofflineModePrompt] = useState(false);
 
+    const bookID = route.params.bookID;
+    const bookpagerecord = useSelector(state => state.bookpagerecord)
     const bookinfo = useSelector(state => state.bookinfo);
     const account = useSelector(state => state.account);
     const profile = useSelector(state => state.profile);
@@ -66,6 +70,110 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
         'Require cycle: node_modules/rn-fetch-blob/index.js',
         'Require cycle: node_modules/react-native/Libraries/Network/fetch.js'
     ]);
+
+    const setPageState = (page) => {
+        setnoPages(page)
+        startTransition(() => {
+            checkBookRecord()
+        }, 1000)
+      }
+    
+      useEffect(() => {
+        initiateBookRecord()
+    
+        return () => {
+            dispatch({type: SET_BOOKPAGE_RECORD, bookpagerecord: { bookID: "", bookPage: "" }})
+        }
+      },[])
+    
+      const initiateBookRecord = () => {
+        db.transaction(txn => {
+            txn.executeSql(`SELECT * FROM bookprevious WHERE bookID = ?`, [bookID],
+            (sqlTxn, res) => {
+                // console.log(res.rows.length)
+                if(res.rows.length == 0){
+                    dispatch({type: SET_BOOKPAGE_RECORD, bookpagerecord: { bookID: bookID, bookPage: "1" }})
+                }
+                else{
+                    // console.log(res.rows.item(0))
+                    dispatch({type: SET_BOOKPAGE_RECORD, bookpagerecord: { bookID: res.rows.item(0).bookID, bookPage: res.rows.item(0).bookRecentPage }})
+                }
+            },
+            (error) => {
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show(error.message, ToastAndroid.SHORT)
+                }
+                else{
+                    alert(error.message)
+                }
+            })
+        })
+      }
+    
+      const checkBookRecord = () => {
+        db.transaction(txn => {
+            txn.executeSql(`SELECT * FROM bookprevious WHERE bookID = ?`, [bookID],
+            (sqlTxn, res) => {
+                // console.log(res.rows.length)
+                if(res.rows.length == 0){
+                    insertBookRecord()
+                }
+                else{
+                    if(noPages != 1 && noPages != "1" && noPages != ""){
+                        updateBookRecord()
+                    }
+                }
+            },
+            (error) => {
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show(error.message, ToastAndroid.SHORT)
+                }
+                else{
+                    alert(error.message)
+                }
+            })
+        })
+      }
+    
+      const updateBookRecord = () => {
+        db.transaction(txn => {
+            txn.executeSql(`UPDATE bookprevious SET bookRecentPage = ? WHERE bookID = ?`, [noPages, bookID],
+            (sqlTxn, res) => {
+                // console.log(res.rows.length)
+                if(res.rowsAffected > 0){
+                    // console.log("Book Record Updated!");
+                }
+            },
+            (error) => {
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show(error.message, ToastAndroid.SHORT)
+                }
+                else{
+                    alert(error.message)
+                }
+            })
+        })
+      }
+    
+      const insertBookRecord = () => {
+        db.transaction(txn => {
+            txn.executeSql(`INSERT INTO bookprevious (bookID, bookRecentPage) VALUES (?,?)`, [bookID, noPages],
+            (sqlTxn, res) => {
+                // console.log(res.rows.length)
+                if(res.rowsAffected > 0){
+                    // console.log("Book Record Saved!");
+                }
+            },
+            (error) => {
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show(error.message, ToastAndroid.SHORT)
+                }
+                else{
+                    alert(error.message)
+                }
+            })
+        })
+      }
 
     useEffect(() => {
         // console.log(route.params.bookID)
@@ -471,11 +579,42 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     }
 
     const setToPage = () => {
-        PDFRef.current.setPage(30)
+        if(bookpagerecord.bookPage != "" && bookpagerecord.bookPage != null){
+            PDFRef.current.setPage(parseInt(bookpagerecord.bookPage))
+        }else{
+            initiateBookRecord()
+            if(Platform.OS === 'android'){
+                ToastAndroid.show("Click again", ToastAndroid.SHORT)
+            }
+            else{
+                alert("Click again")
+            }
+        }
     }
 
     return (
         <View style={styles.container}>
+            {bookmarksWindow? (
+                <View style={styles.viewDownload}>
+                    <View style={styles.viewDownloadDisplay}>
+                        <TouchableOpacity onPress={() => { setbookmarksWindow(!bookmarksWindow) }} style={{position: "absolute", right: 10, top: 10}}>
+                            <View style={{backgroundColor: "transparent"}}>
+                                <IconIon name='close' size={20} style={{color: "white"}} />
+                            </View>
+                        </TouchableOpacity>
+                        <Text style={styles.labelDownloadDisplay} numberOfLines={1}>Bookmarks</Text>
+                        <Text style={styles.labelBookmarks}>Last Page Visited: Page {bookpagerecord.bookPage}</Text>
+                        <TouchableOpacity onPress={() => { setToPage() }}>
+                            <View style={{backgroundColor: "grey", width: 100, marginTop: 5, marginBottom: 10, height: 30, justifyContent: 'center', alignItems: "center", borderRadius: 5}}>
+                                <Text style={{color: "white", fontSize: 13}}>Go this Page</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <Text style={styles.labelBookmarks}>Pages Bookmarked</Text>
+                    </View>
+                </View>
+            ) : (
+                <View></View>
+            )}
             {downloadWindow? (
                 <View style={styles.viewDownload}>
                     <View style={styles.viewDownloadDisplay}>
@@ -605,7 +744,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                         </TouchableOpacity>
                         <View style={{backgroundColor: "#acacac", height: 60, marginTop: 5, justifyContent: 'center', borderRadius: 5, marginLeft: 10, maxWidth: 170}}>
                             <Text style={styles.textBookInfoPages}>Current Page: {noPages} / {totalPages}</Text>
-                            <TouchableOpacity onPress={() => { setToPage() }}>
+                            <TouchableOpacity onPress={() => { setbookmarksWindow(!bookmarksWindow) }}>
                                 <View style={{width: 100, height: 25, marginLeft: 10}}>
                                     <View style={{backgroundColor: "#ffffff", flex: 1, flexDirection: 'row', alignItems: 'center', borderRadius: 5}}>
                                         <Text style={{marginLeft: 10}}>Bookmarks</Text>
@@ -627,7 +766,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                     // console.log(`Number of pages: ${numberOfPages} | ${filePath}`);
                 }}
                 onPageChanged={(page,numberOfPages) => {
-                    setnoPages(page)
+                    setPageState(page)
                     // console.log(`Current page: ${page}`);
                 }}
                 onError={(error) => {
@@ -958,6 +1097,14 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         marginLeft: 20,
         color: "white"
+    },
+    labelBookmarks:{
+        width: "90%",
+        fontSize: 13,
+        marginBottom: 5,
+        marginLeft: 20,
+        color: "white",
+        marginTop: 10
     },
     viewOfflinePrompt:{
         position: "absolute", 
