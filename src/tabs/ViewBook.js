@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image, ToastAndroid, Platform, Alert, Linking, TextInput, NativeModules, LogBox } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import Pdf from 'react-native-pdf'
 import Axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -45,6 +45,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const [textInputComment, settextInputComment] = useState("");
 
     const [noPages, setnoPages] = useState("");
+    const [totalPages, settotalPages] = useState("");
     const [downloaded, setdownloaded] = useState(false);
     const [downloadWindow, setdownloadWindow] = useState(false);
     const [downloadLabel, setdownloadLabel] = useState("Downloading");
@@ -57,6 +58,8 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const profile = useSelector(state => state.profile);
     const bookcomments = useSelector(state => state.bookcomments)
     const dispatch = useDispatch();
+
+    const PDFRef = useRef(null);
 
     LogBox.ignoreLogs([
         'Remote debugger is in a background tab which may cause apps to perform slowly',
@@ -467,6 +470,10 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
         }
     }
 
+    const setToPage = () => {
+        PDFRef.current.setPage(30)
+    }
+
     return (
         <View style={styles.container}>
             {downloadWindow? (
@@ -514,7 +521,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                     </TouchableOpacity>
                 </View>
             </View>
-            <View style={{height: dropInfoView? 200 : 0, width: "100%", backgroundColor: "white", borderBottomWidth: 1, borderBottomColor: "#bfbfbf", marginBottom: 0, alignItems: "center", display: dropInfoView? "flex" : "none" }}>
+            <View style={{height: dropInfoView? 235 : 0, width: "100%", backgroundColor: "white", borderBottomWidth: 1, borderBottomColor: "#bfbfbf", marginBottom: 0, alignItems: "center", display: dropInfoView? "flex" : "none" }}>
                 <View style={{flex: 1, backgroundColor: "white", width: "100%", flexDirection: "row"}}>
                     <View style={{backgroundColor: "white", width: "40%", height: "100%", justifyContent: "center", alignItems: "center"}}>
                         {bookinfo.link_img != "..."? (
@@ -579,8 +586,8 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                             )}
                         </View>
                         <Text style={styles.textBookInfo}>Category: {bookinfo.category}</Text>
-                        <Text style={styles.textBookInfo}>Publisher: {bookinfo.publisher}</Text>
-                        <Text style={styles.textBookInfo} numberOfLines={2}>Author/s: {bookinfo.author}</Text>
+                        <Text style={styles.textBookInfo} numberOfLines={1}>Publisher: {bookinfo.publisher}</Text>
+                        <Text style={styles.textBookInfo} numberOfLines={1}>Author/s: {bookinfo.author}</Text>
                         <TouchableOpacity onPress={() => { setviewDefault(!viewDefault) }}>
                             <View style={styles.viewTagComments}>
                                 {viewDefault? (
@@ -596,18 +603,31 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                                 )}
                             </View>
                         </TouchableOpacity>
+                        <View style={{backgroundColor: "#acacac", height: 60, marginTop: 5, justifyContent: 'center', borderRadius: 5, marginLeft: 10, maxWidth: 170}}>
+                            <Text style={styles.textBookInfoPages}>Current Page: {noPages} / {totalPages}</Text>
+                            <TouchableOpacity onPress={() => { setToPage() }}>
+                                <View style={{width: 100, height: 25, marginLeft: 10}}>
+                                    <View style={{backgroundColor: "#ffffff", flex: 1, flexDirection: 'row', alignItems: 'center', borderRadius: 5}}>
+                                        <Text style={{marginLeft: 10}}>Bookmarks</Text>
+                                        <IconIon name='ios-chevron-forward-outline' size={17} />
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </View>
             <View style={{marginBottom: 10}}></View>
             {viewDefault? (
                 <Pdf
+                ref={PDFRef}
                 source={source}
                 onLoadComplete={(numberOfPages,filePath) => {
-                    setnoPages(numberOfPages)
+                    settotalPages(numberOfPages)
                     // console.log(`Number of pages: ${numberOfPages} | ${filePath}`);
                 }}
                 onPageChanged={(page,numberOfPages) => {
+                    setnoPages(page)
                     // console.log(`Current page: ${page}`);
                 }}
                 onError={(error) => {
@@ -745,6 +765,11 @@ const styles = StyleSheet.create({
     textBookInfo:{
         marginBottom: 5,
         marginLeft: 10
+    },
+    textBookInfoPages:{
+        marginBottom: 5,
+        marginLeft: 10,
+        fontWeight: "bold"
     },
     viewNavigationButtons:{
         backgroundColor: "white",

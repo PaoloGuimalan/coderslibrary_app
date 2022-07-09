@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image, ToastAndroid, Platform, Alert, Linking, TextInput, NativeModules, LogBox } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import Pdf from 'react-native-pdf'
 import Axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -34,7 +34,10 @@ const ViewBookOffline = ({route, navigation: { goBack, navigate }}) => {
 
   const [dropInfoView, setdropInfoView] = useState(true);
   const [noPages, setnoPages] = useState("");
+  const [totalPages, settotalPages] = useState("");
   const [loaderButton, setloaderButton] = useState(false);
+
+  const PDFRef = useRef(null);
 
   useEffect(() => {
     fetchBookData()
@@ -96,6 +99,10 @@ const gotoOnline = async () => {
     })
 }
 
+const setToPage = () => {
+    PDFRef.current.setPage(30)
+}
+
   return (
       <View style={styles.container}>
             <View style={styles.navBarViewBook}>
@@ -113,7 +120,7 @@ const gotoOnline = async () => {
                     </TouchableOpacity>
                 </View>
             </View>
-            <View style={{height: dropInfoView? 200 : 0, width: "100%", backgroundColor: "white", borderBottomWidth: 1, borderBottomColor: "#bfbfbf", marginBottom: 0, alignItems: "center", display: dropInfoView? "flex" : "none" }}>
+            <View style={{height: dropInfoView? 225 : 0, width: "100%", backgroundColor: "white", borderBottomWidth: 1, borderBottomColor: "#bfbfbf", marginBottom: 0, alignItems: "center", display: dropInfoView? "flex" : "none" }}>
                 <View style={{flex: 1, backgroundColor: "white", width: "100%", flexDirection: "row"}}>
                     <View style={{backgroundColor: "white", width: "40%", height: "100%", justifyContent: "center", alignItems: "center"}}>
                         {bookinfooffline.bookImg != "..."? (
@@ -127,8 +134,8 @@ const gotoOnline = async () => {
                         <View style={styles.viewNavigationButtons}>
                             <Text style={styles.textBookInfoMode}>Offline Mode</Text>
                         </View>
-                        <Text style={styles.textBookInfo}>Publisher: {bookinfooffline.bookPublisher}</Text>
-                        <Text style={styles.textBookInfo} numberOfLines={2}>Author/s: {bookinfooffline.bookAuthor}</Text>
+                        <Text style={styles.textBookInfo} numberOfLines={1}>Publisher: {bookinfooffline.bookPublisher}</Text>
+                        <Text style={styles.textBookInfo} numberOfLines={1}>Author/s: {bookinfooffline.bookAuthor}</Text>
                         <TouchableOpacity disabled={loaderButton} onPress={() => { gotoOnline() }}>
                             <View style={styles.viewTagComments}>
                               {loaderButton? (
@@ -145,17 +152,30 @@ const gotoOnline = async () => {
                               )}
                             </View>
                         </TouchableOpacity>
+                        <View style={{backgroundColor: "#acacac", height: 60, marginTop: 5, justifyContent: 'center', borderRadius: 5, marginLeft: 10, maxWidth: 170}}>
+                            <Text style={styles.textBookInfoPages}>Current Page: {noPages} / {totalPages}</Text>
+                            <TouchableOpacity onPress={() => { setToPage() }}>
+                                <View style={{width: 100, height: 25, marginLeft: 10}}>
+                                    <View style={{backgroundColor: "#ffffff", flex: 1, flexDirection: 'row', alignItems: 'center', borderRadius: 5}}>
+                                        <Text style={{marginLeft: 10}}>Bookmarks</Text>
+                                        <IconIon name='ios-chevron-forward-outline' size={17} />
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </View>
             <View style={{marginBottom: 10}}></View>
             <Pdf
+                ref={PDFRef}
                 source={source}
                 onLoadComplete={(numberOfPages,filePath) => {
-                    setnoPages(numberOfPages)
+                    settotalPages(numberOfPages)
                     // console.log(`Number of pages: ${numberOfPages} | ${filePath}`);
                 }}
                 onPageChanged={(page,numberOfPages) => {
+                    setnoPages(page)
                     // console.log(`Current page: ${page}`);
                 }}
                 onError={(error) => {
@@ -211,6 +231,11 @@ const styles = StyleSheet.create({
       marginBottom: 5,
       marginLeft: 10
   },
+  textBookInfoPages:{
+    marginBottom: 5,
+    marginLeft: 10,
+    fontWeight: "bold"
+},
   viewNavigationButtons:{
       backgroundColor: "white",
       height: 40,
