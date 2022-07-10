@@ -18,6 +18,8 @@ import { dataProfile } from '../redux/actions/actions'
 import { openDatabase } from 'react-native-sqlite-storage'
 import DownloadsTab from '../tabs/profileTabs/DownloadsTab'
 import DownloadsMain from '../tabs/DownloadsMain'
+import * as Animatable from 'react-native-animatable'
+import IconAntDesign from 'react-native-vector-icons/AntDesign'
 
 const Tab = createNativeStackNavigator()
 
@@ -36,6 +38,7 @@ export default function Home({navigation}) {
   useEffect(() => {
     checkTables()
     // createTablesBookPrevious()
+    // createTableBookMarks()
     // dropTable()
     // deleteAll()
   },[])
@@ -125,6 +128,7 @@ export default function Home({navigation}) {
         if(res.rows.length == 0){
           createTables()
           createTablesBookPrevious()
+          createTableBookMarks()
         }
       },
       (error) => {
@@ -193,6 +197,30 @@ export default function Home({navigation}) {
     });
   };
 
+  const createTableBookMarks = () => {
+    db.transaction(txn => {
+      txn.executeSql(`CREATE TABLE IF NOT EXISTS bookmarks (id INTEGER PRIMARY KEY AUTOINCREMENT, bookID VARCHAR(20), bookLabel TEXT, bookRecentPage VARCHAR(20));`,
+      [],
+      (sqlTxn, res) => {
+        if(Platform.OS === 'android'){
+          ToastAndroid.show("Database Initialized", ToastAndroid.SHORT)
+        }
+        else{
+            alert("Database Initialized")
+        }
+      },
+      (error) => {
+          console.log("error on creating table " + error.message);
+          if(Platform.OS === 'android'){
+            ToastAndroid.show("Error Initializing Database!", ToastAndroid.SHORT)
+          }
+          else{
+              alert("Error Initializing Database!")
+          }
+      })
+    })
+  }
+
   const storageAccountCheck = async () => {
     await AsyncStorage.getItem('token').then((resp) => {
       Axios.get('https://coderslibraryserver.herokuapp.com/loginVerifier', {
@@ -252,29 +280,43 @@ export default function Home({navigation}) {
               <Image source={ImgLogo} style={styles.logoNavBarIcon} />
               <Text style={styles.textIconLabelBar}>Coder's Library</Text>
             </View>
-            {account.status? (
+            {accessibilities? (
               <View style={styles.viewNavigationsBar}>
-                <IconIon name='ios-notifications' size={30} color="#4d4d4d" style={styles.iconsNavBarList} />
-                <TouchableOpacity onPress={() => { navigation.navigate("Profile", {userName: account.userName}) }} disabled={accessibilities}>
+                <TouchableOpacity disabled={accessibilities}>
                   <View style={styles.viewAccountIcon}>
-                    <View style={styles.flexAccountIcon}>
-                      <IconIon name='person-circle-outline' size={35} color="#4d4d4d" style={styles.accountIcon} />
-                      <Text numberOfLines={1} style={styles.userLabelName}>{account.userName}</Text>
+                    <View style={styles.flexedTagComments}>
+                      <Animatable.View style={{backgroundColor: "transparent", width: "100%", alignItems: 'center'}} animation="rotate" duration={1000} delay={100} iterationDelay={0} iterationCount="infinite" easing="ease-out">
+                        <IconAntDesign name='loading1' size={15} color="black" />
+                      </Animatable.View>
                     </View>
                   </View>
                 </TouchableOpacity>
               </View>
             ) : (
-              <View style={styles.viewNavigationsBar}>
-                <IconIon name='help-circle-outline' size={35} color="#4d4d4d" style={styles.iconsNavBarList} />
-                <TouchableOpacity onPress={() => { navigation.navigate("Login") }} disabled={accessibilities}>
-                  <View style={styles.viewAccountIcon}>
-                    <View style={styles.flexSignUpIcon}>
-                      <Text style={styles.userSignUp}>Sign Up | Log In</Text>
+              account.status? (
+                <View style={styles.viewNavigationsBar}>
+                  <IconIon name='ios-notifications' size={30} color="#4d4d4d" style={styles.iconsNavBarList} />
+                  <TouchableOpacity onPress={() => { navigation.navigate("Profile", {userName: account.userName}) }} disabled={accessibilities}>
+                    <View style={styles.viewAccountIcon}>
+                      <View style={styles.flexAccountIcon}>
+                        <IconIon name='person-circle-outline' size={35} color="#4d4d4d" style={styles.accountIcon} />
+                        <Text numberOfLines={1} style={styles.userLabelName}>{account.userName}</Text>
+                      </View>
                     </View>
-                  </View>
-                </TouchableOpacity>
-              </View>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={styles.viewNavigationsBar}>
+                  <IconIon name='help-circle-outline' size={35} color="#4d4d4d" style={styles.iconsNavBarList} />
+                  <TouchableOpacity onPress={() => { navigation.navigate("Login") }} disabled={accessibilities}>
+                    <View style={styles.viewAccountIcon}>
+                      <View style={styles.flexSignUpIcon}>
+                        <Text style={styles.userSignUp}>Sign Up | Log In</Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              )
             )}
           </View>
         </View>
@@ -449,5 +491,12 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       marginLeft: 1,
       marginRight: 1
+    },
+    flexedTagComments:{
+      flex: 1,
+      flexDirection: "row",
+      height: "100%",
+      justifyContent: "flex-start",
+      alignItems: "center"
     }
 })

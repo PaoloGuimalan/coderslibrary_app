@@ -23,6 +23,7 @@ const db = openDatabase({
 const DownloadsMain = () => {
 
     const downloadslist = useSelector(state => state.downloadslist);
+    const account = useSelector(state => state.account);
     const saves = useSelector(state => state.saves)
     const dispatch = useDispatch()
 
@@ -46,21 +47,26 @@ const DownloadsMain = () => {
     const getSaves = async () => {
         setloadingState(true);
         setNoNetwork(false)
-        await AsyncStorage.getItem('token').then((resp) => {
-          Axios.get('https://coderslibraryserver.herokuapp.com/getSaves', {
-            headers:{
-              "x-access-token": resp
-            }
-          }).then((response) => {
-            //dispatch response
-            dispatch({type: SET_SAVES, saves: response.data})
-            setloadingState(false)
-          }).catch((err) => {
-            //alert error
-            setloadingState(false);
-            setNoNetwork(true);
+        if(account.status){
+          await AsyncStorage.getItem('token').then((resp) => {
+            Axios.get('https://coderslibraryserver.herokuapp.com/getSaves', {
+              headers:{
+                "x-access-token": resp
+              }
+            }).then((response) => {
+              //dispatch response
+              dispatch({type: SET_SAVES, saves: response.data})
+              setloadingState(false)
+            }).catch((err) => {
+              //alert error
+              setloadingState(false);
+              setNoNetwork(true);
+            })
           })
-        })
+        }
+        else{
+          setloadingState(false)
+        }
       }
 
       const unsaveBook = async (bookID) => {
@@ -153,43 +159,55 @@ const DownloadsMain = () => {
                 </View>
               </View>
           ) : (
-            saves.length == 0? (
-              <View style={styles.viewNoSearchDisplay}>
-                  <View style={styles.viewFlexedNoSearch}>
-                    <IconIon name='heart-outline' size={80} />
-                    <Text style={styles.textLabelNoSearch}>No Saved Books yet.</Text>
-                    <TouchableOpacity onPress={() => { getSaves() }}>
-                      <Text style={{marginTop: 20, color: "#4a4a4a", textDecorationLine: "underline"}}>Reload</Text>
-                    </TouchableOpacity>
+            account.status? (
+              saves.length == 0? (
+                <View style={styles.viewNoSearchDisplay}>
+                    <View style={styles.viewFlexedNoSearch}>
+                      <IconIon name='heart-outline' size={80} />
+                      <Text style={styles.textLabelNoSearch}>No Saved Books yet.</Text>
+                      <TouchableOpacity onPress={() => { getSaves() }}>
+                        <Text style={{marginTop: 20, color: "#4a4a4a", textDecorationLine: "underline"}}>Reload</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                </View>
-            ) : (
-              <View style={styles.viewRecents}>
-              <View style={styles.flexedRecents}>
-                {saves.map((book, i) => {
-                  return(
-                    <TouchableOpacity key={i} disabled={true}>
-                      <View style={styles.recentsIndvView}>
-                        <Image source={{uri: book.link_img}} style={styles.imgSizing} />
-                        <Text numberOfLines={2} style={styles.bookName}>{book.name}</Text>
-                        <View style={styles.viewIconsNav}>
-                          <TouchableOpacity onPress={() => {navigation.navigate("ViewBook", { url: book.link_dl, bookID: book.id })}}>
-                            <View style={styles.viewIconTouchSaves}>
-                              <IconFeather name="book-open" size={20} />
-                            </View>
-                          </TouchableOpacity>
-                          <TouchableOpacity onPress={() => { unsaveBook(book.id).then(() => { getSaves() }).catch((err) => { alert(err) }) }}>
-                            <View style={styles.viewIconTouchSaves}>
-                              <IconIon name="heart" size={20} color="#fe2c55" />
-                            </View>
-                          </TouchableOpacity>
+              ) : (
+                <View style={styles.viewRecents}>
+                <View style={styles.flexedRecents}>
+                  {saves.map((book, i) => {
+                    return(
+                      <TouchableOpacity key={i} disabled={true}>
+                        <View style={styles.recentsIndvView}>
+                          <Image source={{uri: book.link_img}} style={styles.imgSizing} />
+                          <Text numberOfLines={2} style={styles.bookName}>{book.name}</Text>
+                          <View style={styles.viewIconsNav}>
+                            <TouchableOpacity onPress={() => {navigation.navigate("ViewBook", { url: book.link_dl, bookID: book.id })}}>
+                              <View style={styles.viewIconTouchSaves}>
+                                <IconFeather name="book-open" size={20} />
+                              </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => { unsaveBook(book.id).then(() => { getSaves() }).catch((err) => { alert(err) }) }}>
+                              <View style={styles.viewIconTouchSaves}>
+                                <IconIon name="heart" size={20} color="#fe2c55" />
+                              </View>
+                            </TouchableOpacity>
+                          </View>
                         </View>
-                      </View>
-                    </TouchableOpacity>
-                  )
-                })}
+                      </TouchableOpacity>
+                    )
+                  })}
+                </View>
               </View>
-            </View>
+              )
+            ) : (
+              <View style={styles.viewNoSearchDisplay}>
+                <View style={styles.viewFlexedNoSearch}>
+                  <IconIon name='log-out-outline' size={80} />
+                  <Text style={styles.textLabelNoSearch}>You are not Logged In.</Text>
+                  <TouchableOpacity onPress={() => { getSaves() }}>
+                    <Text style={{marginTop: 20, color: "#4a4a4a", textDecorationLine: "underline"}}>Reload</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             )
           )
         )}

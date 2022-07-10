@@ -10,7 +10,7 @@ import IconFeather from 'react-native-vector-icons/Feather'
 import IconOcti from 'react-native-vector-icons/Octicons'
 import IconM from 'react-native-vector-icons/MaterialIcons'
 import { useSelector, useDispatch } from 'react-redux'
-import { SET_BOOKPAGE_RECORD, SET_BOOK_COMMENTS, SET_BOOK_INFO } from '../redux/types/types'
+import { SET_BOOKMARKS, SET_BOOKPAGE_RECORD, SET_BOOK_COMMENTS, SET_BOOK_INFO } from '../redux/types/types'
 import { bookinfodata } from '../redux/actions/actions'
 import ClipBoard from '@react-native-clipboard/clipboard'
 import * as Animatable from 'react-native-animatable'
@@ -43,6 +43,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const [addCommentLoadingState, setaddCommentLoadingState] = useState(false);
     const [NoNetwork, setNoNetwork] = useState(false);
     const [bookmarksWindow, setbookmarksWindow] = useState(false);
+    const [addbookmarksWindow, setaddbookmarksWindow] = useState(false);
 
     const [textInputComment, settextInputComment] = useState("");
 
@@ -55,8 +56,12 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const [pdfProgress, setpdfProgress] = useState(0);
     const [offlineModePrompt, setofflineModePrompt] = useState(false);
 
+    const [bookmarkLabelState, setbookmarkLabelState] = useState("");
+    const [bookmarkPageState, setbookmarkPageState] = useState("");
+
     const bookID = route.params.bookID;
     const bookpagerecord = useSelector(state => state.bookpagerecord)
+    const bookmarkslist = useSelector(state => state.bookmarkslist)
     const bookinfo = useSelector(state => state.bookinfo);
     const account = useSelector(state => state.account);
     const profile = useSelector(state => state.profile);
@@ -80,11 +85,45 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     
       useEffect(() => {
         initiateBookRecord()
+        initiateBookmarks()
     
         return () => {
             dispatch({type: SET_BOOKPAGE_RECORD, bookpagerecord: { bookID: "", bookPage: "" }})
+            dispatch({type: SET_BOOKMARKS, bookmarkslist: []})
         }
       },[])
+
+      const initiateBookmarks = () => {
+        db.transaction(txn => {
+            txn.executeSql(`SELECT * FROM bookmarks WHERE bookID = ?`, [bookID],
+            (sqlTxn, res) => {
+                // console.log(res.rows.length)
+                if(res.rows.length > 0){
+                    var arr = []
+                    for(var i = 0; i < res.rows.length; i++){
+                        // console.log(res.rows.length)
+                        arr.push(res.rows.item(i))
+                        if(i+1 == res.rows.length){
+                            // console.log(res.rows.item(i).bookName)
+                            // console.log(arr)
+                            dispatch({type: SET_BOOKMARKS, bookmarkslist: arr})
+                        }
+                    }
+                }
+                else{
+                    // console.log(res.rows.item(0))
+                }
+            },
+            (error) => {
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show(error.message, ToastAndroid.SHORT)
+                }
+                else{
+                    alert(error.message)
+                }
+            })
+        })
+      }
     
       const initiateBookRecord = () => {
         db.transaction(txn => {
@@ -592,8 +631,149 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
         }
     }
 
+    const pageInputChange = (e) => {
+        if(e != ""){
+            if(e != 0 && e != "0"){
+                if(parseInt(e) > parseInt(totalPages)){
+                    setbookmarkPageState("")
+                    if(Platform.OS === 'android'){
+                        ToastAndroid.show("Page exceeds the Total Pages", ToastAndroid.SHORT)
+                    }
+                    else{
+                        alert("Page exceeds the Total Pages")
+                    }
+                }
+                else{
+                    setbookmarkPageState(e)
+                }
+            }
+            else{
+                setbookmarkPageState(e)
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show("Page Cannot be Zero!", ToastAndroid.SHORT)
+                }
+                else{
+                    alert("Page Cannot be Zero!")
+                }
+            }
+        }
+        else{
+            setbookmarkPageState("")
+            if(Platform.OS === 'android'){
+                ToastAndroid.show("Page Cannot be Empty!", ToastAndroid.SHORT)
+            }
+            else{
+                alert("Page Cannot be Empty!")
+            }
+        }
+    }
+
+    const setpageInputCurrent = () => {
+        setbookmarkPageState(noPages.toString())
+    }
+
+    const confirmBookmark = () => {
+        // alert(bookmarkPageState)
+        if(bookmarkPageState == ""){
+            if(Platform.OS === 'android'){
+                ToastAndroid.show("Page not applied!", ToastAndroid.SHORT)
+            }
+            else{
+                alert("Page not applied!")
+            }
+        }
+        else{
+            if(bookmarkPageState == "0"){
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show("Page Invalid", ToastAndroid.SHORT)
+                }
+                else{
+                    alert("Page Invalid")
+                }
+            }
+            else{
+                if(bookmarkLabelState == ""){
+                    // alert("Empty")
+                    insertBookMarkDB("No Label")
+                }
+                else if(!bookmarkLabelState.replace(/\s/g, '').length){
+                    // alert("Empty String")
+                    insertBookMarkDB("No Label")
+                }
+                else{
+                    // alert("OK")
+                    insertBookMarkDB(bookmarkLabelState)
+                }
+            }
+        }
+    }
+    
+    const insertBookMarkDB = (valuemark) => {
+        db.transaction(txn => {
+            txn.executeSql(`INSERT INTO bookmarks (bookID, bookLabel, bookRecentPage) VALUES (?,?,?)`,
+            [bookID, valuemark, bookmarkPageState],
+            (sqlTxn, res) => {
+                if(res.rowsAffected > 0){
+                    if(Platform.OS === 'android'){
+                        ToastAndroid.show("Bookmark Saved!", ToastAndroid.SHORT)
+                    }
+                    else{
+                        alert("Bookmark Saved!")
+                    }
+                    initiateBookmarks()
+                    setaddbookmarksWindow(false); 
+                    setbookmarksWindow(true); 
+                    setbookmarkLabelState(""); 
+                    setbookmarkPageState("")
+                }
+                else{
+                    if(Platform.OS === 'android'){
+                        ToastAndroid.show("Bookmarks were not Saved!", ToastAndroid.SHORT)
+                    }
+                    else{
+                        alert("Bookmarks were not Saved!")
+                    }
+                }
+            },
+            (error) => {
+                if(Platform.OS === 'android'){
+                    ToastAndroid.show(error.message, ToastAndroid.SHORT)
+                }
+                else{
+                    alert(error.message)
+                }
+            })
+        })
+    }
+
     return (
         <View style={styles.container}>
+            {addbookmarksWindow? (
+                <View style={styles.viewDownload}>
+                    <View style={styles.viewDownloadDisplay}>
+                        <TouchableOpacity onPress={() => { setaddbookmarksWindow(false); setbookmarksWindow(true); setbookmarkLabelState(""); setbookmarkPageState("") }} style={{position: "absolute", right: 10, top: 10}}>
+                            <View style={{backgroundColor: "transparent"}}>
+                                <IconIon name='close' size={20} style={{color: "white"}} />
+                            </View>
+                        </TouchableOpacity>
+                        <Text style={styles.labelDownloadDisplay} numberOfLines={1}>Add a Bookmark</Text>
+                        <TextInput onChangeText={(e) => { setbookmarkLabelState(e) }} defaultValue={bookmarkLabelState} placeholder='Bookmark Label' style={{backgroundColor: "white", height: 35, fontSize: 13, marginTop: 10, width: "80%", textAlign: "center", borderRadius: 5}} />
+                        <View style={{width: "80%", backgroundColor: "transparent", marginTop: 5, height: 50}}>
+                            <View style={{flex: 1, backgroundColor: "transparent", flexDirection: 'row', alignItems: 'center', justifyContent: "space-evenly"}}>
+                                <TextInput keyboardType='numeric' onChangeText={(e) => { pageInputChange(e) }} placeholder='Page Number' style={{backgroundColor: "white", height: 35, fontSize: 13, width: "48%", textAlign: "center", borderRadius: 5}} defaultValue={bookmarkPageState} />
+                                <TouchableOpacity style={{width: "48%", height: 35}} onPress={() => { setpageInputCurrent() }}>
+                                    <Text style={{backgroundColor: "grey", height: "100%", borderRadius: 5, borderWidth: 1, borderColor: "white", color: "white", textAlign: "center", textAlignVertical: 'center', paddingLeft: 5, paddingRight: 5, fontSize: 13}}>Set to Current Page</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <TouchableOpacity onPress={() => { confirmBookmark() }}>
+                            <Text style={{backgroundColor: "limegreen", width: 100, marginTop: 10, textAlign: 'center', height: 30, textAlignVertical: "center", borderRadius: 5, color: "white", borderWidth: 1, borderColor: "white"}}>Confirm</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            ) : (
+                <View></View>
+            )}
             {bookmarksWindow? (
                 <View style={styles.viewDownload}>
                     <View style={styles.viewDownloadDisplay}>
@@ -610,6 +790,36 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
                             </View>
                         </TouchableOpacity>
                         <Text style={styles.labelBookmarks}>Pages Bookmarked</Text>
+                        <TouchableOpacity onPress={() => { setaddbookmarksWindow(true); setbookmarksWindow(false); }}>
+                            <Text style={{backgroundColor: "grey", width: 120, height: 30, textAlign: 'center', textAlignVertical: 'center', borderRadius: 5, color: "white", fontSize: 13}}>Add a Bookmark</Text>
+                        </TouchableOpacity>
+                        <View style={{height: 200, backgroundColor: "grey", width: "95%", borderRadius: 3, marginTop: 10}}>
+                            <ScrollView contentContainerStyle={{flexGrow: 1, flexDirection: "column", alignItems: "center", paddingTop: 10, paddingBottom: 10}}>
+                                {bookmarkslist.length == 0? (
+                                    <View style={{marginTop: 75}}>
+                                        <Text style={{color: "#acacac", fontSize: 13}}>No Bookmarks Yet</Text>
+                                        <TouchableOpacity onPress={() => { initiateBookmarks() }}>
+                                            <Text style={{color: "#acacac", fontSize: 13, textAlign: "center", textDecorationLine: "underline"}}>Reload</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                ) : (
+                                    bookmarkslist.map((lbls, i) => {
+                                        return(
+                                            <TouchableOpacity style={{width: "80%"}} key={i} onPress={() => { PDFRef.current.setPage(parseInt(lbls.bookRecentPage)) }}>
+                                                <View style={{width: "100%", backgroundColor: "#bfbfbf", height: 40, marginTop: 5, borderRadius: 5}}>
+                                                    <View style={{flex: 1, flexDirection: "row", alignItems: "center"}}>
+                                                        <View style={{backgroundColor: "transparent", height: "100%", width: "20%", alignItems: 'center', justifyContent: "center"}}>
+                                                            <Text style={{backgroundColor: "grey", width: "70%", height: "70%", textAlign: 'center', textAlignVertical: "center", borderRadius: 500}}>{lbls.bookRecentPage}</Text>
+                                                        </View>
+                                                        <Text style={{paddingLeft: 5, width: "80%", paddingRight: 5}} numberOfLines={1}>{lbls.bookLabel}</Text>
+                                                    </View>
+                                                </View>
+                                            </TouchableOpacity>
+                                        )
+                                    })
+                                )}
+                            </ScrollView>
+                        </View>
                     </View>
                 </View>
             ) : (

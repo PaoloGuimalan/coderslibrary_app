@@ -45,7 +45,7 @@ const Login = ({navigation}) => {
                 await AsyncStorage.setItem('token', response.data.token)
                 dispatch({type: SET_ACCOUNT, account: {status: true, token: response.data.token, userName: response.data.userName}})
                 fetchProfile(response.data.token)
-                navigation.navigate("Home");
+                navigation.navigate("Home", { screen: "HomeTab" });
             }
             else{
                 setloadingState(false)
