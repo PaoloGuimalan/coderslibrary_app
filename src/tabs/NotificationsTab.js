@@ -14,7 +14,7 @@ import Axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useNavigation } from '@react-navigation/native'
 
-const NotificationsTab = () => {
+const NotificationsTab = ({navigation}) => {
 
   const [loadingState, setloadingState] = useState(true);
   const [NoNetwork, setNoNetwork] = useState(false);
@@ -54,6 +54,31 @@ const NotificationsTab = () => {
     else{
       setloadingState(false)
     }
+  }
+
+  const gotoBook = async (bookIDNotif) => {
+      await AsyncStorage.getItem('token').then((resp) => {
+          Axios.get(`https://coderslibraryserver.herokuapp.com/getBookInfo/${bookIDNotif}/${account.status? account.userName : null}`, {
+              headers: {
+                  "x-access-token": resp
+              }
+          }).then((response) => {
+            if(Platform.OS === 'android'){
+              ToastAndroid.show(`Redirecting to ${response.data.bookInfo.name}`, ToastAndroid.SHORT)
+            }
+            else{
+                alert(`Redirecting to ${response.data.bookInfo.name}`)
+            }
+              navigation.navigate("ViewBook", { url: response.data.bookInfo.link_dl, bookID: response.data.bookInfo.id })
+          }).catch((err) => {
+              if(Platform.OS === 'android'){
+                  ToastAndroid.show("Cannot Access Book", ToastAndroid.SHORT)
+              }
+              else{
+                  alert("Cannot Access Book")
+              }
+          })
+      })
   }
   
   return (
@@ -98,9 +123,17 @@ const NotificationsTab = () => {
                 <View style={styles.flexedRecents}>
                 {notifications.map((items, i) => {
                   return(
-                    <TouchableOpacity key={i} disabled={true}>
-                      <View style={styles.recentsIndvView}>
-                        <Text>Notif</Text>
+                    <TouchableOpacity onPress={() => { gotoBook(items.linking) }} key={i} disabled={false} style={{width: "100%", maxWidth: 600, alignItems: "center"}}>
+                      <View style={{backgroundColor: "#f2f2f2", borderRadius: 5, paddingTop: 10, borderBottomWidth: 1, borderBottomColor: "#acacac", width: "90%", minHeight: 70, marginBottom: 5}}>
+                        <View style={{flex: 1, backgroundColor: "transparent", flexDirection: "row", alignItems: "center"}}>
+                          <IconMCI name='comment-outline' size={50} />
+                          <View style={{width: "80%", backgroundColor: "transparent", alignItems: "center", paddingLeft: 10, marginBottom: 5}}>
+                            <Text style={{width: "100%", marginLeft: 0, fontSize: 17, fontWeight: "bold", marginBottom: 0}}>You were tagged</Text>
+                            <Text style={{width: "100%", marginLeft: 0, fontSize: 15, marginBottom: 5, marginTop: 5, textDecorationLine: "underline"}}>Book ID: {items.linking}</Text>
+                            <Text style={{textAlign: "justify", marginBottom: 10, fontSize: 15}}>{items.content}</Text>
+                            <Text style={{width: "100%", marginLeft: 0, fontSize: 13, color: "#acacac"}}>{items.date} | {items.time}</Text>
+                          </View>
+                        </View>
                       </View>
                     </TouchableOpacity>
                   )
@@ -128,13 +161,13 @@ const styles = StyleSheet.create({
   },
   viewRecents:{
     backgroundColor: "white",
-    flex: 0
+    flex: 0,
+    width: "100%"
   },
   flexedRecents:{
     flex: 1,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-evenly"
+    flexDirection: "column",
+    alignItems: "center"
   },
   imgSizing:{
     width: 150,
@@ -206,7 +239,8 @@ const styles = StyleSheet.create({
   viewLabelsWRefresh:{
       flex: 1,
       flexDirection: "row",
-      alignItems: "center"
+      alignItems: "center",
+      marginBottom: 20
   }
 })
 
