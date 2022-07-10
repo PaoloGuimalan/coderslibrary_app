@@ -20,6 +20,7 @@ import DownloadsTab from '../tabs/profileTabs/DownloadsTab'
 import DownloadsMain from '../tabs/DownloadsMain'
 import * as Animatable from 'react-native-animatable'
 import IconAntDesign from 'react-native-vector-icons/AntDesign'
+import NotificationsTab from '../tabs/NotificationsTab'
 
 const Tab = createNativeStackNavigator()
 
@@ -295,7 +296,9 @@ export default function Home({navigation}) {
             ) : (
               account.status? (
                 <View style={styles.viewNavigationsBar}>
-                  <IconIon name='ios-notifications' size={30} color="#4d4d4d" style={styles.iconsNavBarList} />
+                  <TouchableOpacity onPress={() => {navigation.navigate("NotificationsTab")}}>
+                    <IconIon name='ios-notifications' size={30} color="#4d4d4d" style={styles.iconsNavBarList} />
+                  </TouchableOpacity>
                   <TouchableOpacity onPress={() => { navigation.navigate("Profile", {userName: account.userName}) }} disabled={accessibilities}>
                     <View style={styles.viewAccountIcon}>
                       <View style={styles.flexAccountIcon}>
@@ -326,6 +329,7 @@ export default function Home({navigation}) {
               <Tab.Screen name="SearchTab" component={SearchTab} options={{headerShown: false}} />
               <Tab.Screen name="BooksTab" component={BooksTab} options={{headerShown: false}} />
               <Tab.Screen name="DownloadsMain" component={DownloadsMain} options={{headerShown: false}} />
+              <Tab.Screen name="NotificationsTab" component={NotificationsTab} options={{headerShown: false}} />
             </Tab.Navigator>
         </View>
         <View style={styles.viewNav}>

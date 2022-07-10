@@ -60,7 +60,7 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
           token: null,
           userName: null
       }})
-      navigate("Home")
+      navigate("Home", { screen: "HomeTab" })
     })
   }
 

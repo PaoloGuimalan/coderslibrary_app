@@ -1,4 +1,4 @@
-import { BOOKS_LIST, CATEGORIES_LIST, HOME_UPDATES, SEARCH_BOOKS, SEARCH_CATEGORIES, SET_ACCESSIBILITIES, SET_ACCOUNT, SET_ACTIVITY_COMMENTS, SET_BOOKMARKS, SET_BOOKPAGE_RECORD, SET_BOOK_COMMENTS, SET_BOOK_INFO, SET_BOOK_INFO_OFFLINE, SET_DOWNLOADS, SET_PROFILE, SET_RECENTS, SET_SAVES } from "../types/types";
+import { BOOKS_LIST, CATEGORIES_LIST, HOME_UPDATES, SEARCH_BOOKS, SEARCH_CATEGORIES, SET_ACCESSIBILITIES, SET_ACCOUNT, SET_ACTIVITY_COMMENTS, SET_BOOKMARKS, SET_BOOKPAGE_RECORD, SET_BOOK_COMMENTS, SET_BOOK_INFO, SET_BOOK_INFO_OFFLINE, SET_DOWNLOADS, SET_NOTIFICATIONS, SET_PROFILE, SET_RECENTS, SET_SAVES } from "../types/types";
 
 export const setbookslist = (state = [], action) => {
     switch(action.type){
@@ -189,6 +189,15 @@ export const setbookmarkslist = (state = [], action) => {
     switch(action.type){
         case SET_BOOKMARKS:
             return action.bookmarkslist;
+        default:
+            return state;
+    }
+}
+
+export const setnotifications = (state = [], action) => {
+    switch(action.type){
+        case SET_NOTIFICATIONS:
+            return action.notifications;
         default:
             return state;
     }
