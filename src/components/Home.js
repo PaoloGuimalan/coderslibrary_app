@@ -21,6 +21,7 @@ import DownloadsMain from '../tabs/DownloadsMain'
 import * as Animatable from 'react-native-animatable'
 import IconAntDesign from 'react-native-vector-icons/AntDesign'
 import NotificationsTab from '../tabs/NotificationsTab'
+import SettingsTab from '../tabs/SettingsTab'
 
 const Tab = createNativeStackNavigator()
 
@@ -330,6 +331,7 @@ export default function Home({navigation}) {
               <Tab.Screen name="BooksTab" component={BooksTab} options={{headerShown: false}} />
               <Tab.Screen name="DownloadsMain" component={DownloadsMain} options={{headerShown: false}} />
               <Tab.Screen name="NotificationsTab" component={NotificationsTab} options={{headerShown: false}} />
+              <Tab.Screen name="SettingsTab" component={SettingsTab} options={{headerShown: false}} />
             </Tab.Navigator>
         </View>
         <View style={styles.viewNav}>
@@ -353,7 +355,7 @@ export default function Home({navigation}) {
               <Icon name='bookmark' size={25} color="grey" style={styles.iconsStyling} />
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => {navigation.navigate("SettingsTab")}}>
             <View style={styles.viewButtonMain}>
               <Icon name='gear' size={25} color="grey" style={styles.iconsStyling} />
             </View>

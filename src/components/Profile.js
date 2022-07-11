@@ -140,7 +140,7 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
             <TouchableOpacity onPress={() => { navigate("InfosTab") }}>
               <View style={styles.indivCountDetails}>
                 <IconEnt name='dots-three-horizontal' size={30} />
-                <Text style={styles.textCountsDetails}>Infos</Text>
+                <Text style={styles.textCountsDetails}>Account</Text>
               </View>
             </TouchableOpacity>
           </View>
