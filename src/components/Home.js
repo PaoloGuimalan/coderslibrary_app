@@ -311,7 +311,9 @@ export default function Home({navigation}) {
                 </View>
               ) : (
                 <View style={styles.viewNavigationsBar}>
-                  <IconIon name='help-circle-outline' size={35} color="#4d4d4d" style={styles.iconsNavBarList} />
+                  <TouchableOpacity onPress={() => { navigation.navigate("Help") }}>
+                    <IconIon name='help-circle-outline' size={35} color="#4d4d4d" style={styles.iconsNavBarList} />
+                  </TouchableOpacity>
                   <TouchableOpacity onPress={() => { navigation.navigate("Login") }} disabled={accessibilities}>
                     <View style={styles.viewAccountIcon}>
                       <View style={styles.flexSignUpIcon}>

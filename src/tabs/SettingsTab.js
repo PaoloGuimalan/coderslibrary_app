@@ -19,7 +19,7 @@ const db = openDatabase({
     name: "coderslibrary_db"
 })
 
-const SettingsTab = () => {
+const SettingsTab = ({navigation}) => {
 
   const [infoWindow, setinfoWindow] = useState(false);
 
@@ -169,7 +169,7 @@ const SettingsTab = () => {
         <Text style={{fontSize: 17, marginLeft: 20, marginBottom: 10, fontWeight: "bold", marginTop: 20}}>Help and Services</Text>
         <View style={styles.viewRecents}>
             <View style={styles.flexedRecents}>
-                <TouchableOpacity style={{width: 100, marginBottom: 10}}>
+                <TouchableOpacity onPress={() => { navigation.navigate("Help") }} style={{width: 100, marginBottom: 10}}>
                     <View style={{backgroundColor: "transparent", width: "100%", maxWidth: 400, height: 50}}>
                         <View style={{flex: 1, flexDirection: 'row', backgroundColor: "#bfbfbf", alignItems: "center", padding: 5, borderRadius: 5}}>
                             <IconIon name='help-circle-outline' size={30} />
@@ -177,11 +177,11 @@ const SettingsTab = () => {
                         </View>
                     </View>
                 </TouchableOpacity>
-                <TouchableOpacity style={{width: 180, marginBottom: 10}}>
+                <TouchableOpacity onPress={() => { navigation.navigate("TermsConditions") }} style={{width: 180, marginBottom: 10}}>
                     <View style={{backgroundColor: "transparent", width: "100%", maxWidth: 400, height: 50}}>
                         <View style={{flex: 1, flexDirection: 'row', backgroundColor: "#bfbfbf", alignItems: "center", padding: 5, borderRadius: 5}}>
                             <IconFeather name='book-open' size={30} />
-                            <Text style={{marginLeft: 5}}>Terms and Conditions</Text>
+                            <Text style={{marginLeft: 5}}>Terms &#38; Conditions</Text>
                         </View>
                     </View>
                 </TouchableOpacity>
