@@ -153,6 +153,12 @@ const Register = ({navigation}) => {
           )}
           <TextInput placeholder='Password' style={styles.inputsRegister} secureTextEntry={true} onChangeText={(e) => { setpasswordMain(e) }} />
           <TextInput placeholder='Confirm Password' style={styles.inputsRegister} secureTextEntry={true} onChangeText={(e) => { setpasswordCon(e) }} />
+          <View style={{flexDirection: "row", marginTop: 10, marginBottom: 5}}>
+            <Text>Please read the </Text>
+            <TouchableOpacity onPress={() => { navigation.navigate("TermsConditions") }}>
+              <Text style={{textDecorationLine: "underline"}}>Terms &#38; Conditions.</Text>
+            </TouchableOpacity>
+          </View>
           <TouchableOpacity onPress={() => { submitRegister() }}>
             <Text style={styles.textButtonSubmit}>Submit</Text>
           </TouchableOpacity>
