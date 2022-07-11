@@ -9,7 +9,7 @@ import HomeTab from '../tabs/HomeTab'
 import BooksTab from '../tabs/BooksTab'
 import { useDispatch, useSelector } from 'react-redux'
 import Axios from 'axios'
-import { BOOKS_LIST, SET_ACCESSIBILITIES, SET_ACCOUNT, SET_PROFILE } from '../redux/types/types'
+import { BOOKS_LIST, CATEGORIES_LIST, HOME_UPDATES, SET_ACCESSIBILITIES, SET_ACCOUNT, SET_LOADER, SET_LOADER_CAT, SET_PROFILE } from '../redux/types/types'
 import ImgBackground from '../resources/imgs/background_rn.jpg'
 import ImgLogo from '../resources/imgs/book_img.png'
 import SearchTab from '../tabs/SearchTab'
@@ -273,6 +273,48 @@ export default function Home({navigation}) {
     storageAccountCheck()
   }, [])
 
+  const getBooksPublic = () => {
+    Axios.get("https://coderslibraryserver.herokuapp.com/books")
+    .then((response) => {
+        // console.log(response.data);
+        // setbookslist(response.data)
+        dispatch({type: HOME_UPDATES, homeupdates: response.data})
+        dispatch({type: SET_LOADER, loader: false})
+    }).catch((err) => {
+      dispatch({type: HOME_UPDATES, homeupdates: []})
+      dispatch({type: SET_LOADER, loader: true})
+    })
+  }
+
+  const getCategoriesPublic = () => {
+    Axios.get("https://coderslibraryserver.herokuapp.com/categories")
+    .then((response) => {
+        // console.log(response.data);
+        // setbookslist(response.data)
+        dispatch({type: CATEGORIES_LIST, categorieslist: response.data})
+        dispatch({type: SET_LOADER_CAT, loadercat: false})
+    }).catch((err) => {
+      dispatch({type: CATEGORIES_LIST, categorieslist: []})
+      dispatch({type: SET_LOADER_CAT, loadercat: true})
+    })
+  }
+
+  const loaderredux = useSelector(state => state.loader);
+  const loadercatredux = useSelector(state => state.loadercat);
+
+  const refreshApp = () => {
+    if(Platform.OS === 'android'){
+      ToastAndroid.show("Refreshing App", ToastAndroid.SHORT)
+    }
+    else{
+        alert("Refreshing App")
+    }
+    storageAccountCheck()
+    checkTables()
+    getBooksPublic()
+    getCategoriesPublic()
+  }
+
   return (
     <View style={styles.mainView}>
       <StatusBar backgroundColor="white" barStyle="dark-content" />
@@ -297,6 +339,9 @@ export default function Home({navigation}) {
             ) : (
               account.status? (
                 <View style={styles.viewNavigationsBar}>
+                  <TouchableOpacity onPress={() => { refreshApp() }}>
+                    <IconIon name='reload' size={30} color="#4d4d4d" />
+                  </TouchableOpacity>
                   <TouchableOpacity onPress={() => {navigation.navigate("NotificationsTab")}}>
                     <IconIon name='ios-notifications' size={30} color="#4d4d4d" style={styles.iconsNavBarList} />
                   </TouchableOpacity>
@@ -311,6 +356,9 @@ export default function Home({navigation}) {
                 </View>
               ) : (
                 <View style={styles.viewNavigationsBar}>
+                  <TouchableOpacity onPress={() => { refreshApp() }}>
+                    <IconIon name='reload' size={30} color="#4d4d4d" />
+                  </TouchableOpacity>
                   <TouchableOpacity onPress={() => { navigation.navigate("Help") }}>
                     <IconIon name='help-circle-outline' size={35} color="#4d4d4d" style={styles.iconsNavBarList} />
                   </TouchableOpacity>

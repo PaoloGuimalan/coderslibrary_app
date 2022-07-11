@@ -136,6 +136,9 @@ const TermsConditions = ({navigation: { goBack, navigate }}) => {
                 The resources found in this website is not owned by the team. Our main purpose is to share books and learning materials for our fellow learners and not to presume of owning these resources. We cannot promise full information about our resources but all we can give is a proper credential for the author / publisher of the books.
             </Text>
         </View>
+        <Text style={{textAlign: 'center', marginBottom: 30}}>
+            © Coder's Library 2022
+        </Text>
       </ScrollView>
     </View>
   )

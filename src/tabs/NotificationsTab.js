@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity, Platform, ToastAndroid } from 'react-native'
+import { View, Text, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity, Platform, ToastAndroid, Linking } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { openDatabase } from 'react-native-sqlite-storage'
 import { useSelector, useDispatch } from 'react-redux';
@@ -56,8 +56,9 @@ const NotificationsTab = ({navigation}) => {
     }
   }
 
-  const gotoBook = async (bookIDNotif) => {
-      await AsyncStorage.getItem('token').then((resp) => {
+  const gotoBook = async (bookIDNotif, type) => {
+      if(type == "tag"){
+        await AsyncStorage.getItem('token').then((resp) => {
           Axios.get(`https://coderslibraryserver.herokuapp.com/getBookInfo/${bookIDNotif}/${account.status? account.userName : null}`, {
               headers: {
                   "x-access-token": resp
@@ -78,7 +79,13 @@ const NotificationsTab = ({navigation}) => {
                   alert("Cannot Access Book")
               }
           })
-      })
+        })
+      }
+      else{
+        if(bookIDNotif != "none"){
+          Linking.openURL(bookIDNotif)
+        }
+      }
   }
   
   return (
@@ -123,13 +130,17 @@ const NotificationsTab = ({navigation}) => {
                 <View style={styles.flexedRecents}>
                 {notifications.map((items, i) => {
                   return(
-                    <TouchableOpacity onPress={() => { gotoBook(items.linking) }} key={i} disabled={false} style={{width: "100%", maxWidth: 600, alignItems: "center"}}>
+                    <TouchableOpacity onPress={() => { gotoBook(items.linking, items.type) }} key={i} disabled={false} style={{width: "100%", maxWidth: 600, alignItems: "center"}}>
                       <View style={{backgroundColor: "#f2f2f2", borderRadius: 5, paddingTop: 10, borderBottomWidth: 1, borderBottomColor: "#acacac", width: "90%", minHeight: 70, marginBottom: 5}}>
                         <View style={{flex: 1, backgroundColor: "transparent", flexDirection: "row", alignItems: "center"}}>
-                          <IconMCI name='comment-outline' size={50} />
+                          <IconMCI name={items.type == "tag"? 'comment-outline' : 'apple-keyboard-caps'} size={50} />
                           <View style={{width: "80%", backgroundColor: "transparent", alignItems: "center", paddingLeft: 10, marginBottom: 5}}>
-                            <Text style={{width: "100%", marginLeft: 0, fontSize: 17, fontWeight: "bold", marginBottom: 0}}>You were tagged</Text>
-                            <Text style={{width: "100%", marginLeft: 0, fontSize: 15, marginBottom: 5, marginTop: 5, textDecorationLine: "underline"}}>Book ID: {items.linking}</Text>
+                            <Text style={{width: "100%", marginLeft: 0, fontSize: 17, fontWeight: "bold", marginBottom: 0}}>{items.type == "tag"? "You were tagged" : "System Update"}</Text>
+                            {items.type == "tag"? (
+                              <Text style={{width: "100%", marginLeft: 0, fontSize: 15, marginBottom: 5, marginTop: 5, textDecorationLine: "underline"}}>Book ID: {items.linking}</Text>
+                            ) : (
+                              <Text style={{width: "100%", marginLeft: 0, fontSize: 15, marginBottom: 5, marginTop: 5, textDecorationLine: "underline"}}>{items.from}</Text>
+                            )}
                             <Text style={{textAlign: "justify", marginBottom: 10, fontSize: 15}}>{items.content}</Text>
                             <Text style={{width: "100%", marginLeft: 0, fontSize: 13, color: "#acacac"}}>{items.date} | {items.time}</Text>
                           </View>

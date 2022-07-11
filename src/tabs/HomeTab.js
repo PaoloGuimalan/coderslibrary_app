@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import ImgLogo from '../resources/imgs/book_img.png'
 import Axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { CATEGORIES_LIST, HOME_UPDATES } from '../redux/types/types';
+import { CATEGORIES_LIST, HOME_UPDATES, SET_LOADER, SET_LOADER_CAT } from '../redux/types/types';
 
 const HomeTab = ({navigation}) => {
 
@@ -17,29 +17,52 @@ const HomeTab = ({navigation}) => {
   const account = useSelector(state => state.account);
   const dispatch = useDispatch()
 
+  const loaderredux = useSelector(state => state.loader);
+  const loadercatredux = useSelector(state => state.loadercat);
+
   useEffect(() => {
+    setloader(false)
+  },[loaderredux])
+
+  useEffect(() => {
+    setloadercat(false)
+  },[loadercatredux])
+
+  useEffect(() => {
+    getBooksPublic()
+  }, [])
+
+  const getBooksPublic = () => {
     Axios.get("https://coderslibraryserver.herokuapp.com/books")
     .then((response) => {
         // console.log(response.data.books);
         // setbookslist(response.data)
         dispatch({type: HOME_UPDATES, homeupdates: response.data})
         setloader(false)
+        dispatch({type: SET_LOADER, loader: false})
     }).catch((err) => {
       dispatch({type: HOME_UPDATES, homeupdates: []})
+      dispatch({type: SET_LOADER, loader: true})
     })
-  }, [])
+  }
 
   useEffect(() => {
+    getCategoriesPublic()
+  }, [])
+
+  const getCategoriesPublic = () => {
     Axios.get("https://coderslibraryserver.herokuapp.com/categories")
     .then((response) => {
         // console.log(response.data.books);
         // setbookslist(response.data)
         dispatch({type: CATEGORIES_LIST, categorieslist: response.data})
         setloadercat(false)
+        dispatch({type: SET_LOADER_CAT, loadercat: false})
     }).catch((err) => {
       dispatch({type: CATEGORIES_LIST, categorieslist: []})
+      dispatch({type: SET_LOADER_CAT, loadercat: true})
     })
-  }, [])
+  }
 
   return (
     <View style={styles.mainView}>
@@ -60,7 +83,7 @@ const HomeTab = ({navigation}) => {
         <View style={styles.viewWhatsN}>
           <ScrollView horizontal style={styles.scrollWhatsN}>
             {/* <Text>{date.split(" ")[3]}</Text> */}
-            {loader? (
+            {loaderredux? (
               <View style={styles.viewLoader}>
                 <View style={styles.homeupdatesView}>
                   <View style={styles.imageWNSizingLoader} />
@@ -97,7 +120,7 @@ const HomeTab = ({navigation}) => {
         <View style={styles.viewWhatsN}>
           <ScrollView horizontal style={styles.scrollWhatsN}>
             {/* <Text>{date.split(" ")[3]}</Text> */}
-            {loadercat? (
+            {loadercatredux? (
               <View style={styles.viewLoader}>
                 <View style={styles.homeupdatesView}>
                   <View style={styles.imageWNSizingLoader} />
