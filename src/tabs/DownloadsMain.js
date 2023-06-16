@@ -13,6 +13,7 @@ import SavesTab from './profileTabs/SavesTab';
 import Axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useNavigation } from '@react-navigation/native'
+import { MAIN_URL } from '../resources/constants/variables';
 
 const db = openDatabase({
     name: "coderslibrary_db"
@@ -49,7 +50,7 @@ const DownloadsMain = () => {
         setNoNetwork(false)
         if(account.status){
           await AsyncStorage.getItem('token').then((resp) => {
-            Axios.get('https://coderslibraryserver.herokuapp.com/getSaves', {
+            Axios.get(`${MAIN_URL}/getSaves`, {
               headers:{
                 "x-access-token": resp
               }
@@ -72,7 +73,7 @@ const DownloadsMain = () => {
       const unsaveBook = async (bookID) => {
         // alert("Unsave")
         await AsyncStorage.getItem('token').then((resp) => {
-          Axios.get(`https://coderslibraryserver.herokuapp.com/unsaveBook/${bookID}`, {
+          Axios.get(`${MAIN_URL}/unsaveBook/${bookID}`, {
             headers: {
                 "x-access-token": resp
             }

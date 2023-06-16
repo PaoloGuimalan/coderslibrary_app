@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { SET_ACCOUNT, SET_PROFILE } from '../redux/types/types';
 import * as Animatable from 'react-native-animatable'
+import { MAIN_URL } from '../resources/constants/variables';
 
 const Login = ({navigation}) => {
 
@@ -34,7 +35,7 @@ const Login = ({navigation}) => {
     }
     else{
         setloadingState(true);
-        Axios.post('https://coderslibraryserver.herokuapp.com/userLogin', {
+        Axios.post(`${MAIN_URL}/userLogin`, {
             email: emailPrompt,
             password: passwordPrompt
         }).then( async (response) => {
@@ -60,7 +61,7 @@ const Login = ({navigation}) => {
   }
 
   const fetchProfile = async (token) => {
-    Axios.get('https://coderslibraryserver.herokuapp.com/userProfileDetails', {
+    Axios.get(`${MAIN_URL}/userProfileDetails`, {
         headers: {
           "x-access-token": token
         }

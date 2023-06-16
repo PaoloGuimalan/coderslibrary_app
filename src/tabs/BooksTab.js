@@ -6,6 +6,7 @@ import { BOOKS_LIST } from '../redux/types/types';
 import * as Animatable from 'react-native-animatable'
 import IconAntDesign from 'react-native-vector-icons/AntDesign'
 import IconFeather from 'react-native-vector-icons/Feather'
+import { MAIN_URL } from '../resources/constants/variables';
 
 const BooksTab = ({navigation}) => {
 
@@ -28,7 +29,7 @@ const BooksTab = ({navigation}) => {
   const getBooks = () => {
     setNoNetwork(false)
     setloader(true)
-    Axios.get("https://coderslibraryserver.herokuapp.com/books")
+    Axios.get(`${MAIN_URL}/books`)
     .then((response) => {
         // console.log(response.data.books);
         // setbookslist(response.data)

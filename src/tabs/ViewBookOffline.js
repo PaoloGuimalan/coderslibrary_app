@@ -18,6 +18,7 @@ import IconAntDesign from 'react-native-vector-icons/AntDesign'
 import { openDatabase } from 'react-native-sqlite-storage'
 import RNFetchBlob from 'rn-fetch-blob/index'
 import startTransition from '../libraries/startTransitionHook'
+import { MAIN_URL } from '../resources/constants/variables'
 
 const db = openDatabase({
   name: "coderslibrary_db"
@@ -222,7 +223,7 @@ const gotoOnline = async () => {
 //   alert("Online")
     setloaderButton(true)
     await AsyncStorage.getItem('token').then((resp) => {
-        Axios.get(`https://coderslibraryserver.herokuapp.com/getBookInfo/${route.params.bookID}/${account.status? account.userName : null}`, {
+        Axios.get(`${MAIN_URL}/getBookInfo/${route.params.bookID}/${account.status? account.userName : null}`, {
             headers: {
                 "x-access-token": resp
             }

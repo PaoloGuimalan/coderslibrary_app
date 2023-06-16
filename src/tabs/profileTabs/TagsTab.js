@@ -12,6 +12,7 @@ import IconEnt from 'react-native-vector-icons/Entypo'
 import IconAntDesign from 'react-native-vector-icons/AntDesign'
 import { useNavigation } from '@react-navigation/native';
 import { activitycommentsState } from '../../redux/actions/actions';
+import { MAIN_URL } from '../../resources/constants/variables';
 
 const { width, height } = Dimensions.get("window")
 
@@ -39,7 +40,7 @@ const TagsTab = () => {
     setloadingState(true);
     setNoNetwork(false);
     await AsyncStorage.getItem('token').then((resp) => {
-      Axios.get('https://coderslibraryserver.herokuapp.com/getActivityComments', {
+      Axios.get(`${MAIN_URL}/getActivityComments`, {
         headers:{
           "x-access-token": resp
         }
@@ -58,7 +59,7 @@ const TagsTab = () => {
   const bookPointer = async (bookID) => {
     // alert(bookID)
     await AsyncStorage.getItem('token').then((resp) => {
-      Axios.get(`https://coderslibraryserver.herokuapp.com/getBookInfo/${bookID}/${null}`, {
+      Axios.get(`${MAIN_URL}/getBookInfo/${bookID}/${null}`, {
           headers: {
               "x-access-token": resp
           }

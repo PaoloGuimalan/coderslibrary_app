@@ -11,6 +11,7 @@ import IconMCI from 'react-native-vector-icons/MaterialCommunityIcons'
 import IconEnt from 'react-native-vector-icons/Entypo'
 import IconAntDesign from 'react-native-vector-icons/AntDesign'
 import { useNavigation } from '@react-navigation/native'
+import { MAIN_URL } from '../../resources/constants/variables'
 
 const { width, height } = Dimensions.get("window")
 
@@ -38,7 +39,7 @@ const SavesTab = () => {
     setloadingState(true);
     setNoNetwork(false)
     await AsyncStorage.getItem('token').then((resp) => {
-      Axios.get('https://coderslibraryserver.herokuapp.com/getSaves', {
+      Axios.get(`${MAIN_URL}/getSaves`, {
         headers:{
           "x-access-token": resp
         }
@@ -57,7 +58,7 @@ const SavesTab = () => {
   const unsaveBook = async (bookID) => {
     // alert("Unsave")
     await AsyncStorage.getItem('token').then((resp) => {
-      Axios.get(`https://coderslibraryserver.herokuapp.com/unsaveBook/${bookID}`, {
+      Axios.get(`${MAIN_URL}/unsaveBook/${bookID}`, {
         headers: {
             "x-access-token": resp
         }

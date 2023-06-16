@@ -18,6 +18,7 @@ import IconAntDesign from 'react-native-vector-icons/AntDesign'
 import { openDatabase } from 'react-native-sqlite-storage'
 import RNFetchBlob from 'rn-fetch-blob/index'
 import startTransition from '../libraries/startTransitionHook'
+import { MAIN_URL } from '../resources/constants/variables'
 
 // const RNFetchBlob = NativeModules.RNFetchBlob
 
@@ -235,7 +236,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const recentAdderPost = async () => {
         if(account.status){
             await AsyncStorage.getItem('token').then((resp) => {
-                Axios.post('https://coderslibraryserver.herokuapp.com/addRecents', {
+                Axios.post(`${MAIN_URL}/addRecents`, {
                     book_id: route.params.bookID
                 },{
                     headers: {
@@ -251,7 +252,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
 
     const getBookInfo = async () => {
         await AsyncStorage.getItem('token').then((resp) => {
-            Axios.get(`https://coderslibraryserver.herokuapp.com/getBookInfo/${route.params.bookID}/${account.status? account.userName : null}`, {
+            Axios.get(`${MAIN_URL}/getBookInfo/${route.params.bookID}/${account.status? account.userName : null}`, {
                 headers: {
                     "x-access-token": resp
                 }
@@ -271,7 +272,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
         // alert("Save")
         await AsyncStorage.getItem('token').then((resp) => {
             // console.log(resp)
-            Axios.post(`https://coderslibraryserver.herokuapp.com/saveBook`, {
+            Axios.post(`${MAIN_URL}/saveBook`, {
                 bookID: bookinfo.id
             },{
                 headers: {
@@ -486,7 +487,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const unsaveBook = async () => {
         // alert("Unsave")
         await AsyncStorage.getItem('token').then((resp) => {
-            Axios.get(`https://coderslibraryserver.herokuapp.com/unsaveBook/${bookinfo.id}`, {
+            Axios.get(`${MAIN_URL}/unsaveBook/${bookinfo.id}`, {
                 headers: {
                     "x-access-token": resp
                 }
@@ -531,7 +532,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
             }
             else{
                 setaddCommentLoadingState(true);
-                Axios.post(`https://coderslibraryserver.herokuapp.com/postComment`, {
+                Axios.post(`${MAIN_URL}/postComment`, {
                     fullName: `${profile.firstName} ${profile.lastName}`,
                     bookID: bookinfo.id, 
                     content: textInputComment
@@ -579,7 +580,7 @@ const ViewBook = ({route, navigation: { goBack, navigate }}) => {
     const getComments = () => {
         setNoNetwork(false)
         setloadingState(true);
-        Axios.get(`https://coderslibraryserver.herokuapp.com/getComments/${bookinfo.id}`).then((response) => {
+        Axios.get(`${MAIN_URL}/getComments/${bookinfo.id}`).then((response) => {
             dispatch({type: SET_BOOK_COMMENTS, bookcomments: response.data})
             setloadingState(false)
         }).catch((err) => {

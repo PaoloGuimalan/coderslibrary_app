@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import ImgLogo from '../resources/imgs/book_img.png'
 import IconFeather from 'react-native-vector-icons/Feather'
 import Axios from 'axios'
+import { MAIN_URL } from '../resources/constants/variables'
 
 const Register = ({navigation}) => {
 
@@ -36,7 +37,7 @@ const Register = ({navigation}) => {
 
   const codeRequestFetch = () => {
     setcodereqLoader(true)
-    Axios.post('https://coderslibraryserver.herokuapp.com/sendMailCode', {
+    Axios.post(`${MAIN_URL}/sendMailCode`, {
       email: email
     }).then((response) => {
       if(response.data.status){
@@ -58,7 +59,7 @@ const Register = ({navigation}) => {
   }
 
   const verifiedRegistrationData = (verifiedData) => {
-    Axios.post('https://coderslibraryserver.herokuapp.com/createAccount', verifiedData).then((response) => {
+    Axios.post(`${MAIN_URL}/createAccount`, verifiedData).then((response) => {
       //initiate response
       if(response.data.status){
         alert(response.data.message);

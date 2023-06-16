@@ -22,6 +22,7 @@ import * as Animatable from 'react-native-animatable'
 import IconAntDesign from 'react-native-vector-icons/AntDesign'
 import NotificationsTab from '../tabs/NotificationsTab'
 import SettingsTab from '../tabs/SettingsTab'
+import { MAIN_URL } from '../resources/constants/variables'
 
 const Tab = createNativeStackNavigator()
 
@@ -225,7 +226,7 @@ export default function Home({navigation}) {
 
   const storageAccountCheck = async () => {
     await AsyncStorage.getItem('token').then((resp) => {
-      Axios.get('https://coderslibraryserver.herokuapp.com/loginVerifier', {
+      Axios.get(`${MAIN_URL}/loginVerifier`, {
         headers:{
           "x-access-token": resp
         }
@@ -255,7 +256,7 @@ export default function Home({navigation}) {
 
   const fetchProfile = async () => {
     await AsyncStorage.getItem('token').then((resp) => {
-      Axios.get('https://coderslibraryserver.herokuapp.com/userProfileDetails', {
+      Axios.get(`${MAIN_URL}/userProfileDetails`, {
         headers: {
           "x-access-token": resp
         }
@@ -274,7 +275,7 @@ export default function Home({navigation}) {
   }, [])
 
   const getBooksPublic = () => {
-    Axios.get("https://coderslibraryserver.herokuapp.com/books")
+    Axios.get(`${MAIN_URL}/books`)
     .then((response) => {
         // console.log(response.data);
         // setbookslist(response.data)
@@ -287,7 +288,7 @@ export default function Home({navigation}) {
   }
 
   const getCategoriesPublic = () => {
-    Axios.get("https://coderslibraryserver.herokuapp.com/categories")
+    Axios.get(`${MAIN_URL}/categories`)
     .then((response) => {
         // console.log(response.data);
         // setbookslist(response.data)

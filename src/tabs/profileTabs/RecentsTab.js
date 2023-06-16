@@ -11,6 +11,7 @@ import Axios from 'axios'
 import { SET_RECENTS } from '../../redux/types/types'
 import IconAntDesign from 'react-native-vector-icons/AntDesign'
 import * as Animatable from 'react-native-animatable'
+import { MAIN_URL } from '../../resources/constants/variables'
 
 const { width, height } = Dimensions.get("window")
 
@@ -38,7 +39,7 @@ const RecentsTab = () => {
     setloadingState(true);
     setNoNetwork(false)
     await AsyncStorage.getItem('token').then((resp) => {
-      Axios.get('https://coderslibraryserver.herokuapp.com/userRecentsList', {
+      Axios.get(`${MAIN_URL}/userRecentsList`, {
         headers: {
           "x-access-token": resp
         }

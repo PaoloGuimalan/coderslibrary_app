@@ -13,6 +13,7 @@ import SavesTab from './profileTabs/SavesTab';
 import Axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useNavigation } from '@react-navigation/native'
+import { MAIN_URL } from '../resources/constants/variables';
 
 const NotificationsTab = ({navigation}) => {
 
@@ -36,7 +37,7 @@ const NotificationsTab = ({navigation}) => {
     setNoNetwork(false)
     if(account.status){
       await AsyncStorage.getItem('token').then((resp) => {
-        Axios.get('https://coderslibraryserver.herokuapp.com/getNotifications', {
+        Axios.get(`${MAIN_URL}/getNotifications`, {
           headers:{
             "x-access-token": resp
           }
@@ -59,7 +60,7 @@ const NotificationsTab = ({navigation}) => {
   const gotoBook = async (bookIDNotif, type) => {
       if(type == "tag"){
         await AsyncStorage.getItem('token').then((resp) => {
-          Axios.get(`https://coderslibraryserver.herokuapp.com/getBookInfo/${bookIDNotif}/${account.status? account.userName : null}`, {
+          Axios.get(`${MAIN_URL}/getBookInfo/${bookIDNotif}/${account.status? account.userName : null}`, {
               headers: {
                   "x-access-token": resp
               }

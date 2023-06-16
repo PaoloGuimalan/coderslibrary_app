@@ -17,6 +17,7 @@ import InfosTab from '../tabs/profileTabs/InfosTab'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native'
 import { dataProfile } from '../redux/actions/actions'
+import { MAIN_URL } from '../resources/constants/variables'
 
 const { width, height } = Dimensions.get("window");
 
@@ -39,7 +40,7 @@ const Profile = ({route, navigation: { goBack, navigate }}) => {
 
   const fetchProfile = async () => {
     await AsyncStorage.getItem('token').then((resp) => {
-      Axios.get('https://coderslibraryserver.herokuapp.com/userProfileDetails', {
+      Axios.get(`${MAIN_URL}/userProfileDetails`, {
         headers: {
           "x-access-token": resp
         }

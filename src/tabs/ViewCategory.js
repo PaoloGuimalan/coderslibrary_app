@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Axios from 'axios'
+import { MAIN_URL } from '../resources/constants/variables';
 
 const ViewCategory = ({route, navigation}) => {
 
@@ -8,7 +9,7 @@ const ViewCategory = ({route, navigation}) => {
   const [bookslistcategory, setbookslistcategory] = useState([]);
 
   useEffect(() => {
-    Axios.get(`https://coderslibraryserver.herokuapp.com/categoryList/${route.params.catname}`)
+    Axios.get(`${MAIN_URL}/categoryList/${route.params.catname}`)
     .then((response) => {
       // console.log(response.data)
       setbookslistcategory(response.data);

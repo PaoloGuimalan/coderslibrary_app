@@ -4,6 +4,7 @@ import ImgLogo from '../resources/imgs/book_img.png'
 import Axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { CATEGORIES_LIST, HOME_UPDATES, SET_LOADER, SET_LOADER_CAT } from '../redux/types/types';
+import { MAIN_URL } from '../resources/constants/variables';
 
 const HomeTab = ({navigation}) => {
 
@@ -33,7 +34,7 @@ const HomeTab = ({navigation}) => {
   }, [])
 
   const getBooksPublic = () => {
-    Axios.get("https://coderslibraryserver.herokuapp.com/books")
+    Axios.get(`${MAIN_URL}/books`)
     .then((response) => {
         // console.log(response.data.books);
         // setbookslist(response.data)
@@ -51,7 +52,7 @@ const HomeTab = ({navigation}) => {
   }, [])
 
   const getCategoriesPublic = () => {
-    Axios.get("https://coderslibraryserver.herokuapp.com/categories")
+    Axios.get(`${MAIN_URL}/categories`)
     .then((response) => {
         // console.log(response.data.books);
         // setbookslist(response.data)

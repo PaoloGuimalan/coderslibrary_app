@@ -8,6 +8,7 @@ import Axios from 'axios'
 import { useSelector, useDispatch } from 'react-redux'
 import { SEARCH_BOOKS, SEARCH_CATEGORIES } from '../redux/types/types'
 import * as Animatable from 'react-native-animatable'
+import { MAIN_URL } from '../resources/constants/variables'
 
 const SearchTab = ({navigation}) => {
 
@@ -44,8 +45,8 @@ const SearchTab = ({navigation}) => {
     setNoNetwork(false)
     setloadingState(true)
     setsearchinitialized(false)
-    const searchBooksFetch = Axios.post('https://coderslibraryserver.herokuapp.com/searchBooks', { searchBooksValue: searchValue }).catch((err) => { dispatch({type: SEARCH_BOOKS, searchbookslist: []}) })
-    const searchCategoryFetch = Axios.post('https://coderslibraryserver.herokuapp.com/searchCategory', { searchCategoryValue: searchValue }).catch((err) => { dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: []}) })
+    const searchBooksFetch = Axios.post(`${MAIN_URL}/searchBooks`, { searchBooksValue: searchValue }).catch((err) => { dispatch({type: SEARCH_BOOKS, searchbookslist: []}) })
+    const searchCategoryFetch = Axios.post(`${MAIN_URL}/searchCategory`, { searchCategoryValue: searchValue }).catch((err) => { dispatch({type: SEARCH_CATEGORIES, searchcategorieslist: []}) })
 
     await Axios.all([searchBooksFetch, searchCategoryFetch]).then(
       Axios.spread((response1, response2) => {
